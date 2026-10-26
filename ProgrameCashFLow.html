@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en"><head><base target="_top"><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Programme Cash Flow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+  --bg:#070b14; --surface:#0f1626; --surface-2:#151e33; --surface-3:#1c2744; --border:#1f2a44; --border-strong:#2b3a5c;
+  --text:#e9ebee; --text-soft:#c3cde3; --muted:#8a97b4;
+  --accent:#3b82f6; --accent-strong:#2563eb; --accent-soft:rgba(59,130,246,.16); --accent-text:#7db3ff;
+  --good:#4ade80; --good-bg:rgba(74,222,128,.13); --bad:#f87171; --bad-bg:rgba(248,113,113,.14); --warn:#fbbf24; --warn-bg:rgba(251,191,36,.13); --info-bg:rgba(59,130,246,.16);
+  --radius:14px; --side-w:264px;
+  --font-ui:'Manrope','Plus Jakarta Sans','Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;
+  --shadow:0 1px 2px rgba(0,0,0,.25),0 8px 24px rgba(0,0,0,.25);
+  color-scheme:dark;
+}
+/* the tables / data boxes stay light */
+.panel,.cat{--surface:#ffffff;--surface-2:#f1f4fa;--surface-3:#e9eef7;--border:#e2e8f3;--border-strong:#cdd6e6;--text:#0f1b33;--text-soft:#44516c;--muted:#7b87a0;
+  --accent-soft:rgba(37,99,235,.09);--accent-text:#1d4ed8;--good:#15803d;--good-bg:#e7f6ec;--bad:#dc2626;--bad-bg:#fdecec;--warn:#b45309;--warn-bg:#fff4dc;--info-bg:#e8f0ff;
+  --shadow:0 1px 2px rgba(0,0,0,.2),0 10px 30px rgba(0,0,0,.35);color:var(--text);color-scheme:light}
+.panel .fld,.cat .fld,.panel select.fld{background:#fff;color:var(--text);border-color:var(--border-strong)}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;overflow:hidden}
+html{background:var(--bg)}
+body{font-family:var(--font-ui);color:var(--text);font-size:13.5px;line-height:1.4;
+  background:radial-gradient(760px 520px at 100% 100%,rgba(37,99,235,.38),transparent 70%),radial-gradient(520px 380px at 0% 0%,rgba(59,130,246,.10),transparent 70%),var(--bg);background-attachment:fixed}
+::selection{background:rgba(59,130,246,.35)}
+*{scrollbar-width:thin;scrollbar-color:#2b3a5c transparent}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:#2b3a5c;border-radius:8px}::-webkit-scrollbar-track{background:transparent}
+button{font-family:var(--font-ui);border:0;border-radius:9px;color:#fff;padding:7px 12px;font-weight:700;font-size:12.5px;cursor:pointer;flex:none;transition:background .15s,border-color .15s,box-shadow .15s}
+button:active{transform:translateY(1px)}
+button:disabled{opacity:.45;cursor:not-allowed}
+.b{background:var(--accent-strong)}.b:hover{background:var(--accent)}
+.g{background:#0f9f6e}.g:hover{background:#12b37c}
+.r{background:#dc3b3b}.r:hover{background:#ef4a4a}
+button.k{background:var(--surface);border:1px solid var(--border-strong);color:var(--text-soft)}
+button.k:hover{border-color:var(--accent);color:var(--accent-text)}
+button.t{background:transparent;color:var(--accent-text);padding:5px 8px}button.t:hover{background:var(--accent-soft)}
+button.sm{padding:4px 9px;font-size:12px;border-radius:8px}
+.ok{color:var(--good)}.bad{color:var(--bad)}.warn{color:var(--warn)}.mut{color:var(--muted);font-weight:500}
+/* ---------- sidebar ---------- */
+#side{position:fixed;inset:0 auto 0 0;width:var(--side-w);padding:20px 14px 16px;z-index:12;display:flex;flex-direction:column;gap:6px;
+  background:rgba(7,11,20,.78);backdrop-filter:blur(10px);border-right:1px solid var(--border);transition:transform .2s}
+#side .brand{display:flex;align-items:center;gap:10px;padding:0 8px 16px}
+#side .brand img{display:block;width:100%;height:auto;max-width:100%;object-fit:contain}
+#side .brand>div{display:none}
+#side .lbl{font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);padding:6px 10px 4px}
+#side .pages{display:flex;flex-direction:column;gap:2px;padding-bottom:8px}
+#side .pages a{display:flex;align-items:center;gap:12px;padding:6px 8px;border-radius:10px;color:var(--text-soft);text-decoration:none;font-size:13px;font-weight:700;cursor:pointer}
+#side .pages a:hover{background:var(--surface-2)}
+#side .pages a.on{background:var(--accent-soft);color:var(--accent-text)}
+#side .pages .ic{flex:none;width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-size:12px;font-weight:800;background:var(--surface-3);color:var(--muted)}
+#side .pages a.on .ic{background:var(--accent-strong);color:#fff}
+#sideNav{flex:1 1 auto;min-height:90px;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
+#sideNav button{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:12px;padding:6px 8px;border-radius:10px;cursor:pointer;color:var(--text-soft);font:600 13.5px/1.2 var(--font-ui)}
+#sideNav button:hover{background:var(--surface-2)}
+#sideNav .ic{flex:none;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:var(--surface-2);border:1px solid var(--border);color:var(--muted);font:800 11px var(--font-ui)}
+#sideNav .tx{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#sideNav button.on{color:var(--accent-text);background:var(--accent-soft)}
+#sideNav button.on .ic{background:var(--accent-strong);border-color:var(--accent-strong);color:#fff}
+#dbar{display:flex;flex-direction:column;align-items:stretch;gap:6px;border-top:1px solid var(--border);padding-top:10px}
+#dbar button{text-align:left;padding:8px 12px;font-size:12.5px}
+#dbar .b{background:var(--surface);border:1px solid var(--border-strong);color:var(--text-soft)}#dbar .b:hover{border-color:var(--accent);color:var(--accent-text)}
+#dbar .g{background:var(--accent-strong)}#dbar .g:hover{background:var(--accent)}
+#dst{align-self:flex-start;font:800 11.5px var(--font-ui);padding:5px 11px;border-radius:999px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#dst.new{background:var(--warn-bg);color:var(--warn)}#dst.ok{background:var(--good-bg);color:var(--good)}#dst.dirty{background:rgba(251,146,60,.15);color:#fb923c}
+#sideToggle{display:none;position:fixed;top:12px;left:12px;z-index:13;width:40px;height:42px;border-radius:12px;padding:0;background:var(--surface);border:1px solid var(--border-strong);color:var(--text);font-size:18px;align-items:center;justify-content:center}
+/* ---------- main ---------- */
+#app{position:fixed;top:0;right:0;bottom:0;left:var(--side-w);display:flex;flex-direction:column;min-width:0}
+#top{flex:none;padding:14px 22px 6px}
+.pn{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+#pname{flex:1 1 260px;min-width:0;max-width:540px;font:800 21px var(--font-ui);color:var(--text);background:transparent;border:0;border-bottom:2px dashed transparent;padding:3px 2px;outline:none}
+#pname:hover{border-bottom-color:var(--border-strong)}#pname:focus{border-bottom-color:var(--accent)}#pname::placeholder{color:#6a779a}
+.sv{font-size:12px;color:var(--muted)}
+.as{font-size:12px;color:var(--text-soft);display:flex;align-items:center;gap:6px;cursor:pointer}.as input{accent-color:var(--accent-strong)}
+.who{font-size:12px;font-weight:700;color:var(--text-soft);background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:5px 11px;cursor:pointer}.who:hover{border-color:var(--accent)}
+.lockb{font-size:12px;font-weight:800;color:var(--warn);background:var(--warn-bg);border-radius:999px;padding:5px 11px;display:none}
+#kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+#kpis .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:11px 14px 10px;box-shadow:var(--shadow);min-width:0}
+#kpis .card.click{cursor:pointer}#kpis .card.click:hover{border-color:var(--accent)}
+#kpis .k{font-size:12px;color:var(--muted);font-weight:700}
+#kpis .v{font-size:21px;font-weight:800;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#kpis .v small{font-size:12px;font-weight:700;color:var(--muted);margin-right:3px}
+#kpis .s{font-size:12px;margin-top:2px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#kpis .s.good{color:var(--good)}#kpis .s.bad{color:var(--bad)}
+body.hide-sum #kpis,body.hide-sum .bsum{display:none!important}
+#tzoom{position:fixed;right:22px;bottom:14px;z-index:50;display:flex;align-items:center;gap:4px;padding:4px;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow)}#tzoom button{all:unset;box-sizing:border-box;min-width:28px;text-align:center;padding:5px 8px;font:700 12px var(--font-ui);color:var(--muted);cursor:pointer;border:1px solid var(--border);border-radius:8px}#tzoom button:hover{color:var(--text);border-color:var(--accent)}#tzoom .zv{min-width:46px}
+.gwrap .grid{zoom:var(--tz,1)}
+#sumtog{all:unset;box-sizing:border-box;margin-left:auto;align-self:center;padding:5px 11px;margin-bottom:4px;font:700 12px var(--font-ui);color:var(--muted);cursor:pointer;border:1px solid var(--border);border-radius:8px;white-space:nowrap}#sumtog:hover{color:var(--text);border-color:var(--accent)}
+#tabsbar{flex:none;display:flex;gap:4px;padding:6px 22px 0;border-bottom:1px solid var(--border);margin:6px 22px 0;padding-left:0}
+.stab{all:unset;box-sizing:border-box;padding:9px 16px;font:700 13px var(--font-ui);color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;display:flex;align-items:center;gap:6px}
+.stab:hover{color:var(--text)}.stab.on{color:var(--accent-text);border-bottom-color:var(--accent-strong)}
+.stab .bd{min-width:18px;padding:0 6px;border-radius:9px;background:var(--bad);color:#fff;font-size:10.5px;text-align:center;line-height:17px}
+#sheets{flex:1;min-height:0;position:relative}
+.sheet{position:absolute;inset:0;display:none;flex-direction:column;padding:14px 22px 22px;overflow:auto}.sheet.on{display:flex}
+.tool{flex:none;display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:0 0 12px}
+.tool .sp{flex:1}.tool .info{font-size:12px;color:var(--muted)}
+.tool input,.tool select,.fld,.dlg-input{height:34px;padding:0 11px;border:1px solid var(--border-strong);border-radius:9px;background:#0a1020;color:var(--text);font:600 13px var(--font-ui)}
+.tool input:focus,.tool select:focus,.fld:focus,.dlg-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.tool .ck{font-size:12.5px;color:var(--text-soft);display:flex;gap:6px;align-items:center;cursor:pointer}.tool .ck input{height:auto;accent-color:var(--accent-strong)}
+/* ---------- cards / lists ---------- */
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+.panel>h4{margin:0;padding:14px 16px 4px;font-size:14px;font-weight:800}.panel>.sub{padding:0 16px 8px;color:var(--muted);font-size:12px}
+.lst{width:100%;border-collapse:collapse}
+.lst th{position:sticky;top:0;background:var(--surface);z-index:2;text-align:left;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:800;padding:11px 12px;border-bottom:1px solid var(--border)}
+.lst td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+.lst tbody tr:last-child td{border-bottom:0}
+.lst tbody tr.row{cursor:pointer}.lst tbody tr.row:hover td{background:#f4f7fc}
+.lst .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.lst tr.void td{opacity:.5}.lst tr.void .de{text-decoration:line-through}
+.lst tr.tot td{background:var(--surface-2);font-weight:800}
+.lst tr.sub td{background:#f8fafd;font-weight:700}
+#dmod .lst th{background:var(--surface)}
+.de{font-weight:700}.de small{display:block;font-weight:500;color:var(--muted);font-size:12px;margin-top:1px}
+.chip{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:800;white-space:nowrap;margin:1px 3px 1px 0}
+.chip.in{background:var(--good-bg);color:var(--good)}.chip.ex{background:var(--bad-bg);color:var(--bad)}.chip.tr{background:var(--info-bg);color:var(--accent-text)}.chip.rt{background:var(--warn-bg);color:var(--warn)}
+.chip.fl{background:var(--warn-bg);color:var(--warn)}.chip.fb{background:var(--bad-bg);color:var(--bad)}.chip.gd{background:var(--good-bg);color:var(--good)}.chip.nt{background:var(--surface-3);color:var(--text-soft)}
+.amt-in{color:var(--good);font-weight:800}.amt-out{color:var(--bad);font-weight:800}.amt-tr{color:var(--accent-text);font-weight:800}
+.empty{padding:34px;color:var(--muted);text-align:center}
+.acts{white-space:nowrap;text-align:right}
+/* ---------- budget ---------- */
+.bsum{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:14px}
+.bsum .c{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:11px 14px;box-shadow:var(--shadow)}
+.bsum .c .k{font-size:12px;color:var(--muted);font-weight:700}.bsum .c .v{font-size:19px;font-weight:800;margin-top:1px}.bsum .c .s{font-size:12px;color:var(--muted)}
+.cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(640px,1fr));gap:14px;align-items:start}
+.cat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.cat.over{border-color:#f3b4b4}
+.ch{display:flex;align-items:center;gap:10px;padding:12px 14px 10px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,#fbfcff,#f5f8fd)}
+.ch input.cn{flex:1;min-width:0;font:800 15px var(--font-ui);color:var(--text);background:transparent;border:1px solid transparent;border-radius:8px;padding:4px 7px}
+.ch input.cn:hover{border-color:var(--border-strong)}.ch input.cn:focus{outline:none;background:#fff;border-color:var(--accent)}
+.cfig{display:flex;gap:14px;font-size:12px;color:var(--muted);font-weight:700}.cfig b{display:block;font-size:13.5px;color:var(--text);font-variant-numeric:tabular-nums}
+.itbl{width:100%;border-collapse:collapse}
+.itbl th{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:800;text-align:right;padding:8px 8px 6px}
+.itbl th:first-child{text-align:left;padding-left:14px}
+.itbl td{padding:3px 8px;border-top:1px solid #eef1f7;vertical-align:middle;text-align:right;font-variant-numeric:tabular-nums}
+.itbl td:first-child{text-align:left;padding-left:10px}
+.itbl input{width:100%;font:600 13px var(--font-ui);color:var(--text);background:transparent;border:1px solid transparent;border-radius:7px;padding:6px 7px;text-align:inherit}
+.itbl input:hover{border-color:var(--border-strong)}.itbl input:focus{outline:none;background:#fff;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.itbl input[readonly]{color:var(--text-soft);cursor:default}.itbl input[readonly]:hover,.itbl input[readonly]:focus{border-color:transparent;box-shadow:none;background:transparent}
+.itbl .sm2{display:block;font-size:11px;color:var(--muted);font-weight:600;text-align:left;margin:-2px 0 3px 8px}
+.itbl tr.why td{border-top:0;padding:0 14px 8px 14px;text-align:left}
+.itbl tr.why input{background:#fff7f7;border:1px solid #f3c9c9;color:#8f1d1d}
+.cf{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 14px;border-top:1px solid var(--border);background:#fafbfe}
+.cf .addit{border:1.5px dashed var(--accent);background:var(--accent-soft);color:var(--accent-text);padding:7px 14px}
+.cf .addit:hover{background:rgba(37,99,235,.16)}
+.cf .sp{flex:1}.cf .note{font-size:12px;color:var(--muted)}
+.cm{padding:8px 14px;border-top:1px solid var(--border);font-size:12.5px}
+.cm .r1{display:flex;gap:10px;align-items:center;padding:3px 0}.cm .r1 span{flex:1}
+.fund{margin-bottom:14px}.fund .lst td{padding:7px 12px}
+.fund input,.fund select{height:30px;width:100%;border:1px solid transparent;border-radius:7px;background:transparent;font:600 13px var(--font-ui);padding:0 6px;color:var(--text)}
+.fund input:hover,.fund select:hover{border-color:var(--border-strong)}.fund input:focus,.fund select:focus{outline:none;border-color:var(--accent);background:#fff}
+/* ---------- people / summary ---------- */
+.grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:14px;align-items:start;margin-bottom:14px}
+.chk{display:flex;align-items:center;gap:10px;padding:9px 16px;border-top:1px solid var(--border)}
+.chk .ic{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;background:var(--good-bg);color:var(--good)}
+.chk.bad .ic{background:var(--warn-bg);color:var(--warn)}.chk .tx{flex:1}.chk .tx small{display:block;color:var(--muted)}
+.setg{display:flex;gap:18px;flex-wrap:wrap;padding:6px 16px 16px;align-items:center}.setg label{font-size:12.5px;color:var(--text-soft);font-weight:700;display:flex;gap:8px;align-items:center}.setg input{width:90px}
+/* ---------- dialogs ---------- */
+#dmod{position:fixed;inset:0;background:rgba(3,6,12,.7);backdrop-filter:blur(3px);z-index:100000;display:flex;align-items:center;justify-content:center;font-family:var(--font-ui)}
+#dmod .box{background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:16px;width:min(560px,94vw);max-height:90vh;overflow:auto;padding:20px;box-shadow:0 24px 70px rgba(0,0,0,.6)}
+#dmod .box.wide{width:min(720px,95vw)}
+#dmod h3{margin:0 0 12px;font-size:17px;font-weight:800}#dmod .mb{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap}
+#dmod .row{display:flex;align-items:center;gap:8px;padding:8px 4px;border-bottom:1px solid var(--border)}#dmod .row span{flex:1;font-size:14px}#dmod .row small{display:block;color:var(--muted)}
+#dmod input.dlg-input,#dmod textarea{width:100%;margin-bottom:4px}
+.dlg-text{color:var(--text-soft);font-size:13px;margin:0 0 10px}
+.seg{display:flex;background:var(--surface-3);border-radius:10px;padding:3px;gap:2px;margin-bottom:12px}
+.seg button{flex:1;background:transparent;color:var(--text-soft);padding:7px 6px;border-radius:8px}
+.seg button.on{background:var(--accent-strong);color:#fff}
+.frm{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}.frm .full{grid-column:1/-1}
+.frm label{font-size:11.5px;font-weight:800;color:var(--text-soft);display:block;margin-bottom:3px}.frm label i{color:var(--bad);font-style:normal}
+.frm .fld,.frm select,.frm textarea{width:100%;height:36px}
+.frm textarea{height:auto;padding:8px 11px;font:600 13px var(--font-ui);border:1px solid var(--border-strong);border-radius:9px}
+.hint{font-size:12px;color:var(--muted);margin-top:3px}
+.warnbox{background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:9px 12px;font-size:12.5px;margin-top:10px;font-weight:600}
+.errbox{background:var(--bad-bg);color:var(--bad);border-radius:10px;padding:9px 12px;font-size:12.5px;margin-top:10px;font-weight:700}
+#dtoast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--surface-2);border:1px solid var(--accent);color:var(--text);padding:9px 18px;border-radius:22px;font:600 13px var(--font-ui);z-index:100001;display:none;box-shadow:0 10px 30px rgba(15,27,51,.35)}
+@media (max-width:1000px){
+  #app{left:0}#side{transform:translateX(-100%)}body.side-open #side{transform:none;box-shadow:12px 0 40px rgba(0,0,0,.6)}
+  #sideToggle{display:flex}body.side-open #sideToggle{left:calc(var(--side-w) + 10px)}
+  #top{padding:60px 14px 4px}#kpis{display:flex;overflow-x:auto;gap:8px}#kpis .card{flex:0 0 150px}
+  .sheet{padding:12px 14px 20px}#tabsbar{overflow-x:auto;margin:6px 14px 0}.stab{flex:none}
+  .bsum{grid-template-columns:repeat(2,minmax(0,1fr))}.cats{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}
+  .lst-wrap{overflow-x:auto}.frm{grid-template-columns:1fr}
+}
+@media print{#tzoom,#side,#sideToggle,#top,.tool,#tabsbar,.acts,.cf,#dtoast{display:none!important}#app{position:static}html,body{overflow:visible;height:auto}.sheet{position:static;display:block!important;overflow:visible}.sheet:not(.on){display:none!important}}
+.itbl input.q::placeholder{color:#a3aec4;font-weight:500}
+
+@media print{body{background:#fff!important;color:#000}}
+
+/* ---------- editable grids (Transactions + Budget) ---------- */
+#sh-tx,#sh-bt{overflow:hidden}
+#btw{display:flex;flex-direction:column;flex:1;min-height:0}
+.gwrap{flex:1;min-height:0;overflow:auto;position:relative}
+#btw .gwrap{margin-top:0}
+table.grid{border-collapse:separate;border-spacing:0;table-layout:fixed;font:13px/1.25 var(--font-ui)}
+.grid th,.grid td{border-right:1px solid #e4e9f2;border-bottom:1px solid #e4e9f2;padding:0;height:34px;background:#fff;vertical-align:middle}
+.grid thead th{position:sticky;top:0;z-index:4;background:#eef2f9;font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#3b4863;text-align:center;padding:7px 5px;border-bottom:1px solid #c9d2e3;white-space:normal;line-height:1.2}
+.grid thead tr.g2 th{top:27px}
+.grid thead tr.g1 th{padding:5px;font-size:11px;height:27px}
+.grid th.gp{background:#e6ebf5;color:#2d3a57}.grid th.ga{background:#fdf1cf;color:#6b4a07}.grid th.gn{background:#fde2e2;color:#7f1d1d}.grid th.gc{background:#dff3ee;color:#0f5a49}
+.grid td.rn,.grid th.rn{text-align:center;color:#8591ab;font-weight:700;background:#f6f8fc;position:sticky;left:0;z-index:2}
+.grid thead th.rn{z-index:5}
+.grid input,.grid select{width:100%;height:100%;min-height:33px;border:0;background:transparent;font:inherit;color:var(--text);padding:4px 8px;outline:none;border-radius:0;box-shadow:none;margin:0}
+.grid select{cursor:pointer;padding-left:6px}
+.grid input:focus,.grid select:focus{box-shadow:inset 0 0 0 2px var(--accent-strong);background:#fff}
+.grid input.n{text-align:right;font-variant-numeric:tabular-nums}
+.grid input.bad{background:#fdecec;box-shadow:inset 0 0 0 2px #dc2626}
+.grid input[readonly]{color:#44516c}
+.grid select:disabled{color:#44516c;opacity:1;-webkit-appearance:none;appearance:none}
+.grid td.in input{background:#eaf7ee}.grid td.out input{background:#fdf0f0}.grid td.tr input{background:#edf3ff}
+.grid td.in input:focus,.grid td.out input:focus,.grid td.tr input:focus{background:#fff}
+.grid td.bal,.grid td.c-n{text-align:right;padding:0 9px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.grid td.bal{background:#f8fafd;font-weight:700}
+.grid td.ck{padding:3px 6px;line-height:1.1}.grid td.ck .chip{margin:1px 2px 1px 0;font-size:10.5px}
+.grid td .dash{display:block;text-align:center;color:#b3bccf}
+.grid td.act{text-align:center;white-space:nowrap;padding:0 3px;background:#f8fafd}
+.grid td.act button{padding:3px 7px;margin:0 1px;font-size:12px}
+.grid select.ty-income{color:#15803d;font-weight:700}.grid select.ty-expense{color:#b91c1c;font-weight:700}.grid select.ty-transfer{color:#1d4ed8;font-weight:700}.grid select.ty-return{color:#b45309;font-weight:700}
+.grid tr.void td,.grid tr.void input,.grid tr.void select{opacity:.55}.grid tr.void input[data-f="de"]{text-decoration:line-through}
+.grid tbody tr:hover td{background-color:#f6f9ff}.grid tbody tr:hover td.in input,.grid tbody tr:hover td.out input,.grid tbody tr:hover td.tr input{filter:none}
+.grid tfoot td{position:sticky;bottom:0;z-index:3;background:#eef2f9;font-weight:800;padding:8px 10px;border-top:1px solid #c9d2e3;height:38px}
+.grid tfoot td.l{text-align:left}.grid tfoot td.r2{text-align:right;white-space:nowrap}
+.grid td.empty,.grid td.emp{text-align:center;color:var(--muted);padding:26px;height:auto}.grid td.emp{padding:12px;text-align:left}
+/* budget grid */
+.bgrid td.catc{background:#eaf1ff;vertical-align:top;padding:8px 10px;border-right:2px solid #bfd0f5}
+.bgrid td.catc input.cn{font:800 14px var(--font-ui);height:32px;border:1px solid transparent;border-radius:8px;background:rgba(255,255,255,.7);padding:0 8px}
+.bgrid td.catc input.cn:hover{border-color:#bfd0f5}.bgrid td.catc input.cn:focus{background:#fff;border-color:var(--accent-strong)}
+.bgrid .cmeta{font-size:11px;color:#51608a;margin:3px 2px 6px;min-height:14px;font-weight:700}
+.bgrid button.addit{display:block;width:100%;border:1.5px dashed var(--accent-strong);background:#fff;color:#1d4ed8;padding:8px 10px;font-size:13px;border-radius:9px}
+.bgrid button.addit:hover{background:#dfe9ff}
+.bgrid .itw{position:relative}.bgrid .itw input{width:100%;padding-right:24px}.bgrid .itw button{position:absolute;top:-6px;right:-4px;z-index:2;width:18px;height:18px;min-width:0;padding:0;line-height:16px;font-size:13px;border-radius:50%}
+.bgrid .rmcat{display:block;margin-top:8px;width:100%}
+.bgrid .cbtn{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}
+.bgrid .cres{display:flex;gap:6px;align-items:center;font-size:11.5px;color:#51608a;margin-top:8px;font-weight:700}.bgrid .cres input{width:auto;height:auto;min-height:0}
+.bgrid input.cwhy{margin-top:7px;height:30px;border:1px solid #f3b4b4;background:#fff7f7;border-radius:8px;color:#8f1d1d}
+.bgrid td.pl{background:#f6f8fc}.bgrid td.ac{background:#fffbea;padding:0 8px}.bgrid td.nd{background:#fff5f5}.bgrid td.ck2{background:#f4fbf8}
+.bgrid td.cb{font-weight:800;vertical-align:middle;text-align:center}
+.bgrid td.nd input.q{background:#fff;color:#7f1d1d}.bgrid td.nd input::placeholder{color:#c08f8f}
+.bgrid td.ck2 input{background:#fff7f7}
+.bgrid a.lnk{color:#1d4ed8;font-weight:800;text-decoration:none}.bgrid a.lnk:hover{text-decoration:underline}
+.bgrid tbody.catb.over td.catc{background:#ffeaea;border-right-color:#f3b4b4}
+.bgrid tbody.catb td{border-bottom-color:#e4e9f2}.bgrid tbody.catb:last-of-type td{border-bottom:1px solid #c9d2e3}
+.bgrid tr.cmrow td{height:auto;padding:7px 10px;font-size:12.5px;background:#f3f6fd}.bgrid .cmi{display:inline-flex;gap:6px;align-items:center;margin:2px 14px 2px 8px}
+details.fund{margin:0 0 10px;flex:none}details.fund>summary{cursor:pointer;padding:11px 16px;font-weight:700;list-style:none;font-size:13px}
+details.fund>summary::-webkit-details-marker{display:none}details.fund>summary::before{content:'\25B8';display:inline-block;margin-right:8px;color:var(--muted)}details.fund[open]>summary::before{content:'\25BE'}
+details.fund[open]>#incw{max-height:240px;overflow:auto;border-top:1px solid var(--border)}
+#btw .bsum{flex:none;margin-bottom:10px}#btw .tool{flex:none;padding-bottom:10px}
+.bsum .c .v{font-size:17px}
+
+.lst-wrap{overflow-x:auto}
+.grid.auto{table-layout:auto;width:100%;min-width:680px}
+.grid.auto th{text-align:center}.grid.auto td{padding:7px 10px;height:auto}
+.grid.auto td.num,.grid.auto th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.grid.auto tr.tot td{background:#eef2f9;font-weight:800;position:static;border-top:1px solid #c9d2e3}
+.grid.auto tr.sub td{background:#f6f8fc;font-weight:700}
+.grid.auto tr.grp td{background:#e6ebf5;font-weight:800;letter-spacing:.03em;color:#2d3a57;padding:6px 10px}
+.grid.auto tr.row{cursor:pointer}.grid.auto tbody tr.row:hover td{background:#f6f9ff}
+.grid.auto input.fld,.grid.auto select.fld{height:30px;min-height:0;width:auto;border:1px solid #cdd6e6;border-radius:6px;background:#fff;padding:0 8px}
+.grid.auto input.fld:focus,.grid.auto select.fld:focus{box-shadow:0 0 0 2px var(--accent-soft);border-color:var(--accent-strong)}
+.fund .grid.auto input,.fund .grid.auto select{border:1px solid transparent;background:transparent;height:30px;min-height:0}
+.fund .grid.auto input:hover,.fund .grid.auto select:hover{border-color:#cdd6e6}.fund .grid.auto input:focus,.fund .grid.auto select:focus{background:#fff;border-color:var(--accent-strong)}
+.fund .grid.auto{min-width:0}
+.grid.auto .empty{text-align:center;color:var(--muted);padding:18px}
+
+.grid2 .grid.auto{min-width:0}
+
+.grid td a.lnk{color:#1d4ed8;font-weight:800}
+
+</style>
+</head><body>
+<script>window.__DRAFT_ID__=null;</script>
+<button id="sideToggle" class="no-print" type="button" aria-label="Open menu" onclick="document.body.classList.toggle('side-open')">&#9776;</button>
+<aside id="side" class="no-print">
+  <div class="lbl">Pages</div>
+  <div class="pages">
+    <a id="goDash" href="#" target="_blank" rel="noopener" style="display:none" title="Open the Dashboard in a new tab"><span class="ic">D</span><span class="tx">Dashboard</span></a>
+    <a id="goProp" href="#" target="_blank" rel="noopener" style="display:none" title="Open the Working Paper &amp; Budget Proposal in a new tab"><span class="ic">P</span><span class="tx">Proposal</span></a>
+    <a id="goFin" href="#" target="_blank" rel="noopener" style="display:none" title="Open the Financial Report in a new tab"><span class="ic">F</span><span class="tx">Financial Report</span></a>
+    <a class="on" href="#" onclick="return false" aria-current="page"><span class="ic">C</span><span class="tx">Programme Cash Flow</span></a>
+  </div>
+  <div class="lbl">Sheets</div>
+  <nav id="sideNav" aria-label="Sheets"></nav>
+  <div class="lbl">Draft</div>
+  <div id="dbar" class="no-print">
+    <span id="dst" class="new">NEW ENTRY</span>
+    <button class="b" id="bs" title="Save as draft or as completed (Ctrl+S)">&#128190; Save &#9662;</button>
+    <button class="b" id="bn">Save as new copy</button>
+    <button class="b" id="bl">&#128279; Copy link</button>
+    <button class="b" id="bo">&#128194; Open saved&hellip;</button>
+    <button class="b" id="bx" title="Download this cash flow as a file, or import one">&#8645; Export / Import</button>
+    <button class="g" id="bw">+ New entry</button>
+  </div>
+</aside>
+<span id="tzoom" class="no-print" title="Make the table smaller or bigger"><button id="tzm" type="button" aria-label="Smaller">A&minus;</button><button id="tzv" class="zv" type="button" title="Back to 100%">100%</button><button id="tzp" type="button" aria-label="Bigger">A+</button></span>
+<div id="dtoast" class="no-print"></div>
+<main id="app">
+  <div id="top">
+    <div class="pn">
+      <input id="pname" placeholder="Name of programme" aria-label="Name of programme" autocomplete="off">
+      <span class="lockb" id="lockb">&#128274; Books locked</span>
+      <label class="as" title="Saves a saved entry by itself a few seconds after each change"><input type="checkbox" id="auto" checked> Autosave</label>
+      <span class="sv" id="sv"></span>
+      <button class="who" id="who" type="button" title="Your name is stamped on everything you enter. Click to change."></button>
+    </div>
+    <section id="kpis" aria-label="Summary">
+      <div class="card"><div class="k">Cash received</div><div class="v" id="kIn"></div><div class="s" id="kInS"></div></div>
+      <div class="card"><div class="k">Spent</div><div class="v" id="kSp"></div><div class="s" id="kSpS"></div></div>
+      <div class="card"><div class="k">Cash on hand</div><div class="v" id="kOn"></div><div class="s" id="kOnS"></div></div>
+      <div class="card"><div class="k">Budget left</div><div class="v" id="kBl"></div><div class="s" id="kBlS"></div></div>
+      <div class="card click" id="kCkC" title="Open the checks"><div class="k">Needs attention</div><div class="v" id="kCk"></div><div class="s" id="kCkS"></div></div>
+    </section>
+  </div>
+  <div id="tabsbar">
+    <button class="stab on" data-s="bt" type="button">Budget</button>
+    <button class="stab" data-s="tx" type="button">Transactions</button>
+    <button class="stab" data-s="ac" type="button">Accounts</button>
+    <button class="stab" data-s="sm" type="button">Summary<span class="bd" id="bdSm" style="display:none"></span></button>
+    <button class="stab" data-s="lg" type="button">Activity</button>
+
+    <button id="sumtog" type="button" title="Hide or show the summary cards to make the table bigger">&#9650; Hide summary</button>
+  </div>
+  <div id="sheets">
+    <div class="sheet" id="sh-tx">
+      <div class="tool">
+        <button class="g" id="txAdd" type="button" title="Adds an empty row at the bottom. Press Enter in the last row to add the next one.">＋ Add row</button>
+        <span class="info">or use a form:</span>
+        <button class="k sm" data-new="Expense" type="button">Expense</button>
+        <button class="k sm" data-new="Income" type="button">Income</button>
+        <button class="k sm" data-new="Transfer" type="button">⇄ Transfer</button>
+        <button class="k sm" data-new="Return" type="button">↩ Return</button>
+        <input id="fq" type="search" placeholder="Search&hellip;" style="width:170px" aria-label="Search">
+        <select id="fa" aria-label="Filter by account"><option value="">All accounts</option></select>
+        <select id="ft" aria-label="Filter by type"><option value="">All types</option><option>Income</option><option>Expense</option><option>Transfer</option><option>Return</option><option>Expense (UIA operator)</option></select>
+        <label class="ck"><input type="checkbox" id="fv"> Show voided</label>
+        <button class="k sm" id="fx" type="button" style="display:none">Clear filter</button>
+        <span class="sp"></span><span class="info" id="txInfo"></span>
+        <button class="k sm" id="txPaste" type="button" title="Paste rows copied from Excel">Paste from Excel</button>
+        <button class="k sm" id="txCsv" type="button">Download CSV</button>
+      </div>
+      <div class="panel gwrap" id="txw"></div>
+    </div>
+    <div class="sheet on" id="sh-bt"><div id="btw"></div></div>
+    <div class="sheet" id="sh-ac"><div id="acw"></div></div>
+    <div class="sheet" id="sh-sm"><div id="smw"></div></div>
+    <div class="sheet" id="sh-lg"><div id="lgw"></div></div>
+  </div>
+</main>
+<script>
+(function(){
+var ON=!!(window.google&&google.script&&google.script.run),S,cur={id:null,name:'',dirty:false,status:'draft',updated:0},mem={};
+var XK='cashflow',XL='cash flow',XAPP='murc-programme-app',XR0='display:flex;gap:8px;flex-wrap:wrap',XR1='display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:12px';
+var TYPES=['Income','Expense','Transfer','Return'],TYX=['Income','Expense','Expense (UIA operator)','Transfer','Return'],UIA='Expense (UIA operator)',TKS=[['Honorarium','Honorarium'],['ROF','Refreshment Order Form (ROF)'],['PO','Purchase Order (PO)']],PMS=['Cash','Bank transfer','Card','E-wallet'],SRCS=['Advance','Sponsorship','Fees','Opening float','Other'],CLS=['pending','approved','paid'];
+var F={q:'',ac:'',ty:'',vd:false},TAB='bt';
+function $(i){return document.getElementById(i)}
+function esc(t){return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function toast(m){var t=$('dtoast');t.textContent=m;t.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(function(){t.style.display='none'},4000)}
+function num(v){v=parseFloat(String(v==null?'':v).replace(/,/g,'').replace(/[()]/g,function(c){return c==='('?'-':''}));return isNaN(v)?0:v}
+function rn(x){return Math.round(x*1e4)/1e4}
+function r2(x){return Math.round(x*100)/100}
+function money(n){n=rn(n);if(!n)return'-';var s=Math.abs(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');return n<0?'('+s+')':s}
+function moneyH(n){var t=money(n);return rn(n)<0?'<span class="bad">'+t+'</span>':t}
+function balH(n){n=rn(n);return n<0?'<span class="bad">('+m2(n)+')</span>':m2(n)}
+function m2(n){return Math.abs(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',')}
+function uid(){return'u'+Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function low(s){return String(s||'').trim().toLowerCase()}
+function shell(){try{var p=window.parent;return p&&p!==window&&p.TABS?p.TABS:null}catch(e){return null}}
+function isoToday(){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
+function fd(i){var m=/^(\d{4})-(\d\d)-(\d\d)$/.exec(i||'');return m?m[3]+'/'+m[2]+'/'+m[1]:''}
+function pd(s){s=String(s||'').trim();if(/^\d{4}-\d\d-\d\d$/.test(s))return s;var m=/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})$/.exec(s);if(!m)return'';var y=+m[3];if(y<100)y+=2000;return y+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[1]).slice(-2)}
+function fdt(ms){if(!ms)return'';var d=new Date(ms);return fd(d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2))+' '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)}
+
+/* ---- who is working (stamped on every entry) ---- */
+var WHO='';try{WHO=localStorage.getItem('cf_who')||''}catch(e){}
+function who(){return WHO||'Unknown'}
+function paintWho(){$('who').innerHTML='&#128100; '+esc(WHO||'Set your name')}
+function setWho(n){WHO=String(n||'').trim();try{localStorage.setItem('cf_who',WHO)}catch(e){}paintWho()}
+function withWho(fn){if(WHO)return fn();dlg('Your name (stamped on every entry you make)','',true).then(function(n){if(n){setWho(n);fn()}})}
+if(ON){try{google.script.run.withSuccessHandler(function(e){if(e&&!WHO)setWho(e)}).withFailureHandler(function(){}).whoAmI()}catch(e){}}
+
+/* ---- data model ----------------------------------------------------------
+ S = { v:3, name,
+   cats:[{u,name,why,cont,mt, items:[{u,item,price,qty,qt,why,old,mt}]}],      <- the PLAN only (actuals come from the ledger)
+   inc:[{u,src,ty,amt,d,mt}]            expected income (funding side)
+   com:[{u,d,cu,iu,tf,amt,de,st,mt}]    ordered / quoted but not yet paid
+   tx:[{u,d,ty,co,ac,tco,tac,amt,tf,de,cu,iu,qy,sub,ob,why,pm,rc,ap,cs,sr,iu2,vd,vr,vb,vt,leg,cn,cb,ct,eb,et}]   the ledger
+   base:{on,at,by,snap:[{iu,cu,cname,item,amt}],total}  frozen approved budget      revs:[]  every change after approval
+   log:[]  audit trail     lock:{on,at,by,note}  closed books      counts:{key:{amt,note,at,by}}  cash counts
+   tol: rounding tolerance (RM)   thr: overspend flag (%)   del:[uids]  deleted plan rows (for merging) }
+ Transfers are ONE record (from account -> to account), so both sides always agree. */
+function blankItem(){return{u:uid(),item:'',price:'',qty:'',qt:'',why:'',old:null,mt:0}}
+function blankCat(){return{u:uid(),name:'',why:'',cont:false,items:[],mt:0}}
+function newTx(){return{u:uid(),d:'',ty:'Expense',co:'',ac:'',tco:'',tac:'',amt:0,tf:'',de:'',cu:'',iu:'',cn:'',qy:'',sub:'',ob:0,why:'',pm:'',rc:'',ap:'',cs:'',sr:'',iu2:'',vd:0,vr:'',vb:'',vt:0,lg1:0,leg:'',tp:0,tk:'',cb:'',ct:0,eb:'',et:0}}
+function blank(){return{v:3,name:'',cats:[],inc:[],com:[],tx:[],base:null,revs:[],log:[],lock:null,counts:{},tol:0.05,thr:10,del:[]}}
+function lg(a,x,r){S.log.push({u:uid(),t:Date.now(),by:who(),a:a,x:x,r:r||''});if(S.log.length>800)S.log.splice(0,S.log.length-800)}
+
+/* ---- old (v2) files -> v3 ---- */
+function oldEmpty(t){return!(t.id||t.co||t.ac||t.in||t.out||t.de||t.tf||t.ca)}
+function migTx(rows,cats){
+ var out=[],legs=[],catBy={};cats.forEach(function(c){if(low(c.name))catBy[low(c.name)]=c});
+ rows.forEach(function(r){if(oldEmpty(r))return;
+  var inn=Math.abs(num(r.in)),o=Math.abs(num(r.out)),t=newTx();
+  t.d=pd(r.d);t.co=String(r.co||'').trim();t.ac=String(r.ac||'').trim();t.de=String(r.de||'');t.tf=String(r.tf||'');t.cb=r.cb||'imported';t.ct=Date.now();
+  if(r.ty==='Income'){t.ty='Income';t.amt=rn(inn-o);t.sr='Other';out.push(t)}
+  else if(r.ty==='Expense'||r.ty==='Return'){t.ty=r.ty;t.amt=rn(o-inn);
+   if(r.ty==='Expense'){var ca=String(r.ca||'').trim(),c=catBy[low(ca)];if(c)t.cu=c.u;else if(ca){t.cn=ca;t.ob=1;t.why='Imported: category not in the budget'}}
+   out.push(t)}
+  else{t.ty='Transfer';out.push(t);legs.push({t:t,inn:inn,o:o,id:low(r.id)})}});
+ var by={};legs.forEach(function(l){if(l.id){(by[l.id]=by[l.id]||[]).push(l)}});
+ Object.keys(by).forEach(function(k){var g=by[k];
+  g.forEach(function(a){if(!(a.o>0)||a.done)return;
+   for(var i=0;i<g.length;i++){var b=g[i];if(b===a||b.done||!(b.inn>0)||Math.abs(b.inn-a.o)>0.005)continue;
+    a.t.tco=b.t.co;a.t.tac=b.t.ac;a.t.amt=rn(a.o);if(!a.t.de)a.t.de=b.t.de;if(!a.t.d)a.t.d=b.t.d;a.t.tf='';a.done=1;b.done=1;b.t.drop=1;break}})});
+ legs.forEach(function(l){if(l.done)return;var t=l.t;t.leg=l.o>0?'out':'in';t.amt=rn(l.o>0?l.o:l.inn)});
+ return out.filter(function(t){return!t.drop})}
+function migrate(o){
+ var d=blank();d.name=String(o.name||'');
+ (o.cats||[]).forEach(function(c){var k=blankCat();k.name=String(c.name||'');
+  (c.items||[]).forEach(function(it){var n=blankItem();n.item=String(it.item||'');n.price=String(it.price==null?'':it.price);n.qty=String(it.qty==null?'':it.qty);
+   if(it.ai||it.ab||it.ap||it.at)n.old={ai:String(it.ai||''),ab:String(it.ab||''),ap:String(it.ap||''),at:String(it.at||''),src:it.src||''};
+   if(n.item||n.price||n.qty||n.old)k.items.push(n)});
+  if(k.name||k.items.length)d.cats.push(k)});
+ d.tx=migTx(o.tx||[],d.cats);
+ if(d.tx.length)d.log.push({u:uid(),t:Date.now(),by:'system',a:'import',x:'Opened an older cash flow file: '+d.tx.length+' entries converted (transfers merged into single entries where both sides matched).',r:''});
+ return d}
+function norm(x){x=x||{};var d;
+ if(!x.v||x.v<3)d=migrate(x);else{d=Object.assign(blank(),x)}
+ d.cats=(d.cats||[]).map(function(c){c=Object.assign(blankCat(),c);c.items=(c.items||[]).map(function(i){i=Object.assign(blankItem(),i);['price','qty','qt'].forEach(function(k){i[k]=i[k]==null?'':String(i[k])});return i});return c});
+ d.inc=(d.inc||[]).map(function(i){return Object.assign({u:uid(),src:'',ty:'Advance',amt:'',d:'',mt:0},i)});
+ d.com=(d.com||[]).map(function(i){return Object.assign({u:uid(),d:'',cu:'',iu:'',tf:'',amt:'',de:'',st:'Ordered',mt:0},i)});
+ d.tx=(d.tx||[]).map(function(t){t=Object.assign(newTx(),t);t.amt=num(t.amt);return t});
+ d.revs=d.revs||[];d.log=d.log||[];d.counts=d.counts||{};d.del=d.del||[];d.tol=d.tol==null?0.05:num(d.tol);d.thr=d.thr==null?10:num(d.thr);
+ d.name=String(d.name||'');return d}
+
+/* ---- paid directly by the UIA operator: counts as spending against the budget, but no cash leaves our accounts ---- */
+function tpOn(t){return t.ty==='Expense'&&!!t.tp}
+function tyLbl(t){return tpOn(t)?UIA:t.ty}
+function tkName(k){var f=TKS.filter(function(x){return x[0]===k})[0];return f?f[1]:''}
+
+/* ---- ledger ---- */
+function akey(co,ac){return low(co)+'|'+low(ac)}
+function alabel(co,ac){co=String(co||'').trim();ac=String(ac||'').trim();return(co?co+' \u2013 ':'')+(ac||'(no account)')}
+function effDates(txs){var last='';return txs.map(function(t){if(t.d)last=t.d;return t.d||last})}
+function order(txs){var ed=effDates(txs);return txs.map(function(t,i){return i}).sort(function(a,b){return ed[a]<ed[b]?-1:ed[a]>ed[b]?1:a-b})}
+function calcLedger(txs){txs=txs||S.tx;
+ var ord=order(txs),bal={},acc={},rows=[],seen={},tol=S.tol||0,inc=0,spent=0,tps=0,ret=0,cnt={inc:0,noTk:0,noPm:0,noDate:0,noRc:0,noAp:0,noCat:0,obNoWhy:0,ob:0,dup:0,neg:0,leg:0,claims:0},negRows=0;
+ function A(co,ac){var k=akey(co,ac);if(!acc[k])acc[k]={k:k,co:String(co||'').trim(),ac:String(ac||'').trim(),rec:0,out:0,spent:0,n:0,cl:{pending:0,approved:0,paid:0}};return acc[k]}
+ txs.forEach(function(){rows.push({})});
+ ord.forEach(function(i){var t=txs[i],r=rows[i];r.fl=[];if(t.vd){r.void=1;return}
+  var a=rn(num(t.amt)),k=akey(t.co,t.ac),tp=tpOn(t),A1=tp?null:A(t.co,t.ac);if(A1)A1.n++;
+  if(t.ty==='Income'){bal[k]=rn((bal[k]||0)+a);A1.rec+=a;inc+=a}
+  else if(tp){spent+=a;tps+=a}
+  else if(t.ty==='Expense'){bal[k]=rn((bal[k]||0)-a);A1.spent+=a;spent+=a;if(t.cs&&CLS.indexOf(t.cs)>=0){A1.cl[t.cs]+=a;if(t.cs!=='paid')cnt.claims++}}
+  else if(t.ty==='Return'){bal[k]=rn((bal[k]||0)-a);A1.out+=a;ret+=a}
+  else if(t.leg==='in'){bal[k]=rn((bal[k]||0)+a);A1.rec+=a}
+  else if(t.leg==='out'){bal[k]=rn((bal[k]||0)-a);A1.out+=a}
+  else{var k2=akey(t.tco,t.tac),A2=A(t.tco,t.tac);A2.n++;bal[k]=rn((bal[k]||0)-a);bal[k2]=rn((bal[k2]||0)+a);A1.out+=a;A2.rec+=a;r.bal2=bal[k2]}
+  r.bal=tp?null:bal[k];
+  if(r.bal<-0.005){r.fl.push({c:'fb',t:'Below zero'});cnt.neg++}
+  if(!t.d){r.fl.push({c:'fl',t:'No date'});cnt.noDate++}
+  if(!(a>0)){r.fl.push({c:'fl',t:'No amount'});cnt.inc++}
+  if(t.leg){r.fl.push({c:'fl',t:'Old unpaired transfer'});cnt.leg++}
+  if(t.ty==='Expense'){
+   if(tp){r.fl.push({c:'nt',t:'UIA operator pays'});if(!t.tk){r.fl.push({c:'fl',t:'No document type'});cnt.noTk++}}
+   else if(!t.pm){r.fl.push({c:'fl',t:'No pay method'});cnt.noPm++}
+   if(!t.rc){r.fl.push({c:'fl',t:tp?'No document no.':'No receipt'});cnt.noRc++}
+   if(!t.ap){r.fl.push({c:'fl',t:'No approver'});cnt.noAp++}
+   if(t.ob){cnt.ob++;r.fl.push({c:'nt',t:'Outside budget'});if(!t.why){cnt.obNoWhy++}}
+   else if(!t.cu&&!t.iu){r.fl.push({c:'fl',t:'No category'});cnt.noCat++}}
+  if(t.d&&a>0&&low(t.tf)&&(t.ty==='Expense'||t.ty==='Income')){var dk=[t.ty,t.d,a,low(t.tf)].join('|');if(seen[dk]!=null){r.fl.push({c:'fl',t:'Possible duplicate'});if(!rows[seen[dk]].dupMarked){rows[seen[dk]].dupMarked=1;rows[seen[dk]].fl.push({c:'fl',t:'Possible duplicate'});cnt.dup++}cnt.dup++}else seen[dk]=i}});
+ var on=0;Object.keys(bal).forEach(function(k){on+=bal[k]});
+ return{ord:ord,rows:rows,bal:bal,acc:acc,inc:rn(inc),spent:rn(spent),tp:rn(tps),ret:rn(ret),onHand:rn(on),cnt:cnt,recon:rn(on-(inc-(spent-tps)-ret))}}
+function accList(){var m={},o=[];S.tx.forEach(function(t){[[t.co,t.ac],[t.tco,t.tac]].forEach(function(p){if(low(p[0])||low(p[1])){var k=akey(p[0],p[1]);if(!m[k]){m[k]=1;o.push({k:k,co:String(p[0]||'').trim(),ac:String(p[1]||'').trim(),l:alabel(p[0],p[1])})}}})});return o.sort(function(a,b){return a.l.localeCompare(b.l)})}
+
+/* ---- budget (the plan) against the ledger (the actuals) ---- */
+function itemPlan(it){return rn(num(it.price)*num(it.qty))}
+function calcBudget(L){var tol=S.tol||0,thr=S.thr||0,I={},C={},out={},extra={},cm={},cmi={};
+ S.tx.forEach(function(t,i){if(t.vd||t.ty!=='Expense')return;var a=rn(num(t.amt));
+  if(t.iu){var I1=I[t.iu]=I[t.iu]||{act:0,qty:0,last:null,n:0};I1.act+=a;I1.n++;I1.qty+=num(t.qy);}
+  else if(t.cu){extra[t.cu]=(extra[t.cu]||0)+a}
+  else{var nm=t.cn||'(no category)';out[nm]=(out[nm]||0)+a}});
+ L.ord.forEach(function(i){var t=S.tx[i];if(t.vd||t.ty!=='Expense'||!t.iu)return;var I1=I[t.iu];if(num(t.qy)>0)I1.last={price:rn(num(t.amt)/num(t.qy)),sub:t.sub||''};else if(t.sub)I1.last=I1.last||{price:0,sub:t.sub}});
+ S.com.forEach(function(c){var a=rn(num(c.amt));if(c.iu)cmi[c.iu]=(cmi[c.iu]||0)+a;cm[c.cu||'_']=(cm[c.cu||'_']||0)+a});
+ var T={plan:0,act:0,com:0,need:0,base:S.base&&S.base.on?S.base.total:null,unexpl:0,overCats:0,over:0,reserve:0,reserveUsed:0};
+ S.cats.forEach(function(c){var r={plan:0,act:0,com:cm[c.u]||0,need:0,items:[]};
+  c.items.forEach(function(it){var x=I[it.u]||{act:0,qty:0,last:null,n:0},plan=itemPlan(it),qty=num(it.qty),a=rn(x.act),
+    needQ=qty>0?(x.n&&x.qty>0?Math.max(0,qty-x.qty):(x.n?0:qty)):0,
+    price=x.last&&x.last.price>0?x.last.price:(num(it.qt)>0?num(it.qt):num(it.price)),
+    src=x.last&&x.last.price>0?'latest price':(num(it.qt)>0?'quote':'planned price'),
+    over=a>plan+tol&&(plan>0||a>tol),pct=plan>0?(a-plan)/plan*100:null;
+   var q={plan:plan,act:a,left:rn(plan-a),com:cmi[it.u]||0,needQ:needQ,needP:price,needSrc:src,needAmt:rn(needQ*price),bought:x.qty,sub:x.last?x.last.sub:'',over:over,pct:pct,flag:over&&(pct==null||pct>thr),n:x.n};
+   r.plan+=plan;r.act+=a;r.need+=q.needAmt;r.items.push(q);if(over&&!String(it.why||'').trim())T.unexpl++});
+  r.extra=rn(extra[c.u]||0);r.act=rn(r.act+r.extra);r.plan=rn(r.plan);r.need=rn(r.need);r.left=rn(r.plan-r.act);
+  r.over=r.act>r.plan+tol&&(r.plan>0||r.act>tol);r.pct=r.plan>0?(r.act-r.plan)/r.plan*100:null;
+  r.has=!!(r.plan||r.act||r.com);
+  if(c.cont){T.reserve+=r.plan;T.reserveUsed+=r.act}else{T.plan+=r.plan;T.act+=r.act;if(r.over){T.over+=rn(r.act-r.plan);T.overCats++;if(!String(c.why||'').trim()&&!r.items.some(function(q){return q.over}))T.unexpl++}}
+  T.com+=r.com;T.need+=r.need;C[c.u]=r});
+ var o2=0;Object.keys(out).forEach(function(k){o2+=out[k]});T.outside=rn(o2);T.act=rn(T.act);
+ T.reserve=rn(T.reserve);T.reserveUsed=rn(T.reserveUsed);
+ var ei=0,er=0;S.inc.forEach(function(x){ei+=num(x.amt)});S.tx.forEach(function(t){if(!t.vd&&t.ty==='Income'&&t.iu2){er+=num(t.amt)}});
+ T.expInc=rn(ei);T.expRcvd=rn(er);T.total=rn(T.plan+T.reserve);
+ return{I:I,C:C,out:out,T:T}}
+function budgetTotal(){var a=0;S.cats.forEach(function(c){c.items.forEach(function(i){a+=itemPlan(i)})});return rn(a)}
+function findItem(iu){for(var i=0;i<S.cats.length;i++)for(var j=0;j<S.cats[i].items.length;j++)if(S.cats[i].items[j].u===iu)return{c:S.cats[i],it:S.cats[i].items[j]};return null}
+function catBy(u){for(var i=0;i<S.cats.length;i++)if(S.cats[i].u===u)return S.cats[i];return null}
+function locked(){return!!(S.lock&&S.lock.on)}
+function baseOn(){return!!(S.base&&S.base.on)}
+
+/* ================= TRANSACTIONS (editable grid) ================= */
+function vis(t){if(t.vd&&!F.vd)return false;if(F.ty&&(F.ty===UIA?!tpOn(t):t.ty!==F.ty))return false;
+ if(F.ac&&akey(t.co,t.ac)!==F.ac&&akey(t.tco,t.tac)!==F.ac)return false;
+ if(F.q){var s=[fd(t.d),t.ty,t.co,t.ac,t.tco,t.tac,t.amt,t.tf,t.de,t.rc,t.ap,t.pm,t.cn,(catBy(t.cu)||{}).name,(findItem(t.iu)||{it:{}}).it.item].join(' ').toLowerCase();if(s.indexOf(F.q)<0)return false}return true}
+function catLabel(t){if(t.ty!=='Expense')return t.ty==='Income'&&t.sr?t.sr:'';var c=catBy(t.cu),f=t.iu?findItem(t.iu):null;
+ return f?f.c.name+' \u203A '+(f.it.item||'(item)'):(c?c.name:(t.cn||''))}
+function fillFilter(){var fa=$('fa'),v=F.ac;fa.innerHTML='<option value="">All accounts</option>'+accList().map(function(a){return'<option value="'+esc(a.k)+'">'+esc(a.l)+'</option>'}).join('');fa.value=v;if(fa.value!==v){F.ac='';fa.value=''}}
+function txFind(u){for(var i=0;i<S.tx.length;i++)if(S.tx[i].u===u)return i;return-1}
+function budOpts(w){var h='<option value="">Choose\u2026</option>';S.cats.forEach(function(c){h+='<optgroup label="'+esc(c.name||'(unnamed category)')+'">';h+='<option value="c:'+c.u+'"'+(w.cu===c.u&&!w.iu&&!w.ob?' selected':'')+'>'+esc(c.name||'(category)')+' \u2013 whole category</option>';
+ c.items.forEach(function(it){h+='<option value="i:'+it.u+'"'+(w.iu===it.u?' selected':'')+'>'+esc(it.item||'(unnamed item)')+'</option>'});h+='</optgroup>'});
+ return h+'<option value="out"'+(w.ob?' selected':'')+'>Outside the budget\u2026</option>'}
+function accOpts(sel){var l=accList(),h='<option value="">Choose\u2026</option>';l.forEach(function(a){h+='<option value="'+esc(a.k)+'"'+(a.k===sel?' selected':'')+'>'+esc(a.l)+'</option>'});return h+'<option value="__new">\uFF0B New account\u2026</option>'}
+var TW=[44,112,96,176,176,108,108,230,140,200,100,110,230,84],TH=['#','Date','Type','Account (from) / UIA document','To account','Amount (RM)','Balance (RM)','Description','Paid to / received from','Budget item / kind','Receipt','Approved by','Checks',''];
+function flagsHtml(r,t){if(t.vd)return'<span class="chip nt" title="'+esc(t.vr||'')+'">Voided</span>';return(r.fl||[]).map(function(f){return'<span class="chip '+f.c+'">'+f.t+'</span>'}).join('')}
+function txRow(t,k,r,ro){var off=ro||t.vd,dis=off?' disabled':'',rd=off?' readonly':'',tr=t.ty==='Transfer'&&!t.leg,
+ cls=t.ty==='Income'||t.leg==='in'?'in':(t.ty==='Transfer'&&!t.leg?'tr':'out');
+ function inp(f,v,c,x){return'<input data-f="'+f+'" class="'+(c||'')+'" value="'+esc(v)+'"'+rd+(x||'')+' autocomplete="off">'}
+ var tys='<select data-f="ty" class="ty-'+t.ty.toLowerCase()+'"'+dis+'>'+TYX.map(function(x){return'<option'+(x===tyLbl(t)?' selected':'')+'>'+x+'</option>'}).join('')+'</select>';
+ var from=tpOn(t)?'<select data-f="tk"'+dis+'><option value="">UIA operator \u2013 choose document\u2026</option>'+TKS.map(function(k){return'<option value="'+k[0]+'"'+(t.tk===k[0]?' selected':'')+'>UIA \u2013 '+k[1]+'</option>'}).join('')+'</select>':'<select data-f="acc"'+dis+'>'+accOpts(akey(t.co,t.ac)==='|'?'':akey(t.co,t.ac))+'</select>';
+ var to=tr?'<select data-f="tacc"'+dis+'>'+accOpts(akey(t.tco,t.tac)==='|'?'':akey(t.tco,t.tac))+'</select>':'<span class="dash">\u2014</span>';
+ var bud=t.ty==='Expense'?'<select data-f="bud"'+dis+'>'+budOpts(t)+'</select>':(t.ty==='Income'?'<select data-f="sr"'+dis+'>'+SRCS.map(function(p){return'<option'+((t.sr||'Other')===p?' selected':'')+'>'+p+'</option>'}).join('')+'</select>':'<span class="dash">\u2014</span>');
+ return'<tr data-u="'+t.u+'" class="'+(t.vd?'void':'')+'"><td class="rn">'+k+'</td><td>'+inp('d',fd(t.d),'','placeholder="dd/mm/yyyy"')+'</td><td>'+tys+'</td><td>'+from+'</td><td>'+to+'</td>'
+  +'<td class="'+cls+'">'+inp('amt',t.amt?String(t.amt):'','n','inputmode="decimal"')+'</td><td class="bal" id="bl_'+t.u+'">'+(r.void||r.bal==null?'':balH(r.bal))+'</td>'
+  +'<td>'+inp('de',t.de)+'</td><td>'+inp('tf',t.tf)+'</td><td>'+bud+'</td><td>'+inp('rc',t.rc)+'</td><td>'+inp('ap',t.ap)+'</td><td class="ck" id="ck_'+t.u+'">'+flagsHtml(r,t)+'</td>'
+  +'<td class="act"><button type="button" class="k sm" data-a="edit" title="All details: payment method, quantity, claim, notes">\u270E</button>'+(t.vd?'<button type="button" class="k sm" data-a="restore" title="Restore this entry">\u21A9</button>':'<button type="button" class="r sm" data-a="void" title="Void (cancel) this entry">\u00D7</button>')+'</td></tr>'}
+function renderTx(){var L=calcLedger(),rows=[],k=0,n=0;fillFilter();var ro=locked();
+ L.ord.forEach(function(i){var t=S.tx[i];if(!vis(t))return;k++;if(!t.vd)n++;rows.push(txRow(t,k,L.rows[i],ro))});
+ var h='<table class="grid" id="txg" style="width:'+TW.reduce(function(a,b){return a+b},0)+'px"><colgroup>'+TW.map(function(w){return'<col style="width:'+w+'px">'}).join('')+'</colgroup><thead><tr>'+TH.map(function(x,i){return'<th'+(i===0?' class="rn"':'')+'>'+x+'</th>'}).join('')+'</tr></thead><tbody>'
+  +(rows.length?rows.join(''):'<tr><td class="rn"></td><td colspan="13" class="empty">'+(S.tx.length?'Nothing matches the filter.':'No transactions yet. Press <b>\uFF0B Add row</b> and type straight into the table, or <a href="#" data-a="sample" class="lnk">load the example data</a>.')+'</td></tr>')
+  +'</tbody><tfoot><tr><td colspan="4" class="l" id="fLbl"></td><td colspan="3" id="fNet" class="r2"></td><td colspan="7" class="l" id="fCnt"></td></tr></tfoot></table>';
+ $('txw').innerHTML=h;paintTxCalc(L,n)}
+function paintTxCalc(L,nn){L=L||calcLedger();var inS=0,outS=0,n=0,shown=0;
+ S.tx.forEach(function(t,i){var r=L.rows[i],b=$('bl_'+t.u),c=$('ck_'+t.u);if(!b)return;b.innerHTML=r.void||r.bal==null?'':balH(r.bal);c.innerHTML=flagsHtml(r,t);
+  if(!t.vd){n++;if(vis(t)){shown++;var s=t.ty==='Income'||t.leg==='in'?1:(t.ty==='Transfer'&&!t.leg?0:-1),a=num(t.amt);if(s>0)inS+=a;else if(s<0)outS+=a}}});
+ var f=$('fNet');if(f){var filt=!!(F.q||F.ac||F.ty);$('fLbl').textContent=filt?'Rows shown':'All entries';f.innerHTML='<span class="amt-in">+'+m2(inS)+'</span> <span class="amt-out">\u2212'+m2(outS)+'</span>';$('fCnt').textContent=(filt?shown+' shown of ':'')+n+' entr'+(n===1?'y':'ies')}
+ $('fx').style.display=(F.q||F.ac||F.ty)?'':'none';$('txInfo').textContent=''}
+var FLBL={tk:'UIA document',d:'date',ty:'type',amt:'amount',de:'description',tf:'name',rc:'receipt',ap:'approved by',acc:'account',tacc:'to account',bud:'budget item',sr:'kind'};
+function logChange(x,f,o,nw){var now=Date.now();x.eb=who();x.et=now;
+ if(!x.lg1){if(num(x.amt)>0){x.lg1=1;lg('add','Added '+x.ty+' RM '+m2(num(x.amt))+(x.de?' \u2013 '+x.de:''),x.u)}}
+ else if(String(o)!==String(nw))lg('edit','Edited '+x.ty+' "'+(x.de||'')+'": '+(FLBL[f]||f)+' '+(o===''||o==null?'\u2014':o)+' \u2192 '+(nw===''?'\u2014':nw),x.u)}
+function focusCell(u,f){var el=document.querySelector('#txg tr[data-u="'+u+'"] [data-f="'+f+'"]');if(el){el.focus();if(el.select&&el.tagName==='INPUT')el.select()}return el}
+function visRows(){return[].map.call(document.querySelectorAll('#txg tbody tr[data-u]'),function(tr){return tr.getAttribute('data-u')})}
+function addRow(){if(guardLock())return;withWho(function(){var p=S.tx[S.tx.length-1],n=newTx();n.d=(p&&p.d)||isoToday();n.ty=p?p.ty:'Expense';if(p&&p.ty!=='Transfer'){n.co=p.co;n.ac=p.ac}n.cb=who();n.ct=Date.now();n.et=n.ct;S.tx.push(n);mark();F.ty='';$('ft').value='';renderTx();paint(true);focusCell(n.u,'d');var w=$('txw');w.scrollTop=w.scrollHeight})}
+function newAcctDlg(cb,cancel){var m=modal('<h3>New account</h3><p class="dlg-text">One person / account of a committee.</p><div class="frm"><div><label>Committee</label><input class="fld" id="nc"></div><div><label>Person / account <i>*</i></label><input class="fld" id="na"></div></div><div id="ferr"></div><div class="mb"><button class="k" id="mc">Cancel</button><button class="b" id="mo">Add account</button></div>');
+ m.querySelector('#na').focus();m.querySelector('#mc').onclick=function(){m.remove();cancel&&cancel()};
+ m.querySelector('#mo').onclick=function(){var a=m.querySelector('#na').value.trim();if(!a){m.querySelector('#ferr').innerHTML='<div class="errbox">Enter the account name.</div>';return}m.remove();cb(m.querySelector('#nc').value.trim(),a)}}
+var pendSort=false;
+$('txw').addEventListener('focusin',function(e){var t=e.target,f=t.getAttribute&&t.getAttribute('data-f');if(!f||t.readOnly||t.disabled)return;if(!WHO){t.blur();withWho(function(){});return}t._old=t.value});
+$('txw').addEventListener('input',function(e){var t=e.target,f=t.getAttribute&&t.getAttribute('data-f');if(!f||t.tagName!=='INPUT'||f==='d')return;var tr=t.closest('tr[data-u]'),x=tr&&S.tx[txFind(tr.getAttribute('data-u'))];if(!x||x.vd||locked())return;
+ if(f==='amt')x.amt=num(t.value);else x[f]=t.value;mark();paint(true)});
+$('txw').addEventListener('change',function(e){var t=e.target,f=t.getAttribute&&t.getAttribute('data-f');if(!f)return;var tr=t.closest('tr[data-u]'),x=tr&&S.tx[txFind(tr.getAttribute('data-u'))];if(!x||x.vd||locked())return;var u=x.u,old=t._old,v=t.value,redo=false;
+ if(t.tagName==='INPUT'){
+  if(f==='d'){if(!v.trim()){x.d='';t.classList.remove('bad')}else{var p=pd(v);if(!p){t.classList.add('bad');toast('Type the date as dd/mm/yyyy.');return}t.classList.remove('bad');x.d=p;t.value=fd(p)}pendSort=true;logChange(x,f,fd(pd(old)||''),fd(x.d))}
+  else{if(f==='amt')x.amt=num(v);else x[f]=v;logChange(x,f,old,v)}
+  mark();paint(true);return}
+ var ov=old;
+ if(f==='ty'){var uia=v===UIA,nt=uia?'Expense':v;x.ty=nt;x.tp=uia?1:0;if(uia){x.co='';x.ac='';x.pm='';x.cs=''}else x.tk='';x.leg='';if(nt!=='Expense'){x.cu='';x.iu='';x.ob=0}if(nt!=='Transfer'){x.tco='';x.tac=''}if(nt!=='Income'){x.sr=''}redo=true}
+ else if(f==='tk'){x.tk=v;redo=true}
+ else if(f==='acc'||f==='tacc'){if(v==='__new'){newAcctDlg(function(co,ac){if(f==='acc'){x.co=co;x.ac=ac}else{x.tco=co;x.tac=ac}logChange(x,f,'',alabel(co,ac));mark();renderTx();paint(true);focusCell(u,f)},function(){renderTx();focusCell(u,f)});return}
+  var a=accList().filter(function(z){return z.k===v})[0],co=a?a.co:'',ac=a?a.ac:'';if(f==='acc'){x.co=co;x.ac=ac}else{x.tco=co;x.tac=ac}redo=true;ov=''}
+ else if(f==='bud'){if(v==='out'){x.ob=1;x.cu='';x.iu=''}else if(v.indexOf('c:')===0){x.ob=0;x.cu=v.slice(2);x.iu=''}else if(v.indexOf('i:')===0){var fi=findItem(v.slice(2));x.ob=0;x.iu=v.slice(2);x.cu=fi?fi.c.u:''}else{x.ob=0;x.cu='';x.iu=''}redo=true}
+ else if(f==='sr'){x.sr=v;redo=true}
+ logChange(x,f,ov,f==='bud'?catLabel(x):v);mark();renderTx();paint(true);focusCell(u,f);
+ if(f==='bud'&&x.ob&&!x.why)txModal(x,false)});
+$('txw').addEventListener('focusout',function(e){if(!pendSort)return;setTimeout(function(){var a=document.activeElement,tr=e.target.closest&&e.target.closest('tr[data-u]');if(!pendSort||(tr&&a&&tr.contains(a)))return;pendSort=false;
+ var key=a&&a.closest&&a.closest('tr[data-u]')&&a.getAttribute('data-f')?{u:a.closest('tr[data-u]').getAttribute('data-u'),f:a.getAttribute('data-f')}:null;renderTx();if(key)focusCell(key.u,key.f)},0)});
+$('txw').addEventListener('keydown',function(e){var t=e.target;if(t.tagName!=='INPUT')return;var f=t.getAttribute('data-f');if(!f)return;var u=t.closest('tr').getAttribute('data-u'),vr=visRows(),p=vr.indexOf(u);
+ if(e.key==='Enter'||e.key==='ArrowDown'){if(e.key==='ArrowDown'&&e.altKey)return;e.preventDefault();if(p<vr.length-1)focusCell(vr[p+1],f);else if(e.key==='Enter')addRow()}
+ else if(e.key==='ArrowUp'){e.preventDefault();if(p>0)focusCell(vr[p-1],f)}else if(e.key==='Escape')t.blur()});
+$('txw').addEventListener('click',function(e){var b=e.target.closest('button[data-a]');if(!b)return;var tr=b.closest('tr[data-u]'),t=S.tx[txFind(tr.getAttribute('data-u'))],a=b.getAttribute('data-a');
+ if(a==='void')voidTx(t);else if(a==='restore')restoreTx(t);else if(a==='edit')txModal(t,false)});
+$('txAdd').onclick=addRow;
+document.querySelectorAll('[data-new]').forEach(function(b){b.onclick=function(){txModal(null,true,b.getAttribute('data-new'))}});
+$('fq').addEventListener('input',function(){F.q=this.value.trim().toLowerCase();renderTx()});
+$('fa').onchange=function(){F.ac=this.value;renderTx()};$('ft').onchange=function(){F.ty=this.value;renderTx()};$('fv').onchange=function(){F.vd=this.checked;renderTx()};
+$('fx').onclick=function(){F.q='';F.ac='';F.ty='';$('fq').value='';$('fa').value='';$('ft').value='';renderTx()};
+
+function guardLock(){if(locked()){toast('The books are locked. Unlock them in Summary to change entries.');return true}return false}
+function voidTx(t){if(guardLock())return;withWho(function(){var m=modal('<h3>Void this entry?</h3><p class="dlg-text">'+esc(t.ty)+' of RM '+m2(num(t.amt))+(t.de?' \u2013 '+esc(t.de):'')+'<br>It stays in the record (struck through) but no longer counts. A reason is required.</p><textarea id="vr" class="fld" rows="3" style="width:100%;height:auto;padding:8px 11px" placeholder="Why is this being voided?"></textarea><div class="mb"><button class="k" id="mc">Cancel</button><button class="r" id="mo">Void entry</button></div>');
+  m.querySelector('#vr').focus();m.querySelector('#mc').onclick=function(){m.remove()};
+  m.querySelector('#mo').onclick=function(){var v=m.querySelector('#vr').value.trim();if(!v){toast('Please give a reason.');return}t.vd=1;t.vr=v;t.vb=who();t.vt=Date.now();t.eb=who();t.et=Date.now();lg('void','Voided '+t.ty+' RM '+m2(num(t.amt))+' ('+(t.de||'')+') \u2013 '+v,t.u);m.remove();mark();paint()}})}
+function restoreTx(t){if(guardLock())return;withWho(function(){t.vd=0;t.eb=who();t.et=Date.now();lg('restore','Restored '+t.ty+' RM '+m2(num(t.amt))+' ('+(t.de||'')+')',t.u);mark();paint()})}
+
+function modal(h){var m=document.createElement('div');m.id='dmod';m.innerHTML='<div class="box">'+h+'</div>';document.body.appendChild(m);return m}
+function accOpts2(sel){var l=accList(),h='<option value="">Choose account\u2026</option>';l.forEach(function(a){h+='<option value="'+esc(a.k)+'"'+(a.k===sel?' selected':'')+'>'+esc(a.l)+'</option>'});return h+'<option value="__new"'+(sel==='__new'?' selected':'')+'>\uFF0B New account\u2026</option>'}
+function accPick(p,co,ac,lbl){var k=akey(co,ac),have=accList().some(function(a){return a.k===k}),sel=(co||ac)?(have?k:'__new'):(accList().length?'':'__new');
+ return'<div><label>'+lbl+' <i>*</i></label><select class="fld" data-acc="'+p+'">'+accOpts2(sel)+'</select><div class="nw" data-nw="'+p+'" style="display:'+(sel==='__new'?'grid':'none')+';grid-template-columns:1fr 1fr;gap:6px;margin-top:6px"><input class="fld" data-k="'+p+'co" placeholder="Committee" value="'+esc(sel==='__new'?co:'')+'"><input class="fld" data-k="'+p+'ac" placeholder="Person / account" value="'+esc(sel==='__new'?ac:'')+'"></div></div>'}
+function formHtml(w,isNew){var ty=w.ty,h='<h3>'+(isNew?'New transaction':'Edit transaction')+'</h3><div class="seg" id="seg">'+TYPES.map(function(x){return'<button type="button" data-ty="'+x+'" class="'+(x===ty?'on':'')+'">'+x+'</button>'}).join('')+'</div><div class="frm">';
+ h+='<div><label>Date <i>*</i></label><input type="date" class="fld" data-k="d" value="'+esc(w.d)+'"></div><div><label>Amount (RM) <i>*</i></label><input class="fld" data-k="amt" inputmode="decimal" value="'+(w.amt?esc(w.amt):'')+'" placeholder="0.00"></div>';
+ if(ty==='Expense')h+='<div class="full"><label>Paid by</label><select class="fld" data-k="tp"><option value="0"'+(w.tp?'':' selected')+'>Programme account (cash goes out)</option><option value="1"'+(w.tp?' selected':'')+'>UIA operator \u2013 paid directly (no cash from our accounts)</option></select></div>';
+ if(ty==='Expense'&&w.tp){h+='<div class="full"><label>Document type <i>*</i></label><select class="fld" data-k="tk"><option value="">Choose\u2026</option>'+TKS.map(function(k){return'<option value="'+k[0]+'"'+(w.tk===k[0]?' selected':'')+'>'+k[1]+'</option>'}).join('')+'</select><div class="hint" style="margin-top:6px">The UIA operator pays the supplier or receiver themselves. It counts against the budget but does not reduce your cash balance. When the Financial Report is synced with this cash flow, a Payment Approval Form is added for it (plus the Refreshment Order Form for an ROF).</div></div>'}
+ else if(ty==='Transfer'){h+=accPick('f',w.co,w.ac,'From account')+accPick('t',w.tco,w.tac,'To account')}
+ else h+='<div class="full">'+accPick('f',w.co,w.ac,ty==='Income'?'Received into account':ty==='Return'?'Paid out of account':'Paid from account')+'</div>';
+ h+='<div class="full"><label>Description <i>*</i></label><input class="fld" data-k="de" value="'+esc(w.de)+'" placeholder="What is this for?"></div>';
+ if(ty==='Expense'){
+  h+='<div'+(w.tp?' class="full"':'')+'><label>'+(w.tp?'Paid to (supplier / honorarium receiver)':'Paid to (seller)')+'</label><input class="fld" data-k="tf" value="'+esc(w.tf)+'"></div>'+(w.tp?'':'<div><label>Payment method <i>*</i></label><select class="fld" data-k="pm"><option value="">Choose\u2026</option>'+PMS.map(function(p){return'<option'+(w.pm===p?' selected':'')+'>'+p+'</option>'}).join('')+'</select></div>')
+   +'<div class="full"><label>Budget item <i>*</i></label><select class="fld" data-bud>'+budOpts(w).replace('Choose\u2026','Choose budget item\u2026')+'</select></div>';
+  if(w.ob)h+='<div class="full"><label>Why is this outside the budget? <i>*</i></label><input class="fld" data-k="why" value="'+esc(w.why)+'"></div><div class="full"><label>Name of category (for the record)</label><input class="fld" data-k="cn" value="'+esc(w.cn)+'"></div>';
+  h+='<div><label>Quantity bought</label><input class="fld" data-k="qy" inputmode="decimal" value="'+esc(w.qy)+'" placeholder="optional"></div><div><label>Actually bought as (substitution)</label><input class="fld" data-k="sub" value="'+esc(w.sub)+'" placeholder="e.g. Plastic bag"></div>'
+   +'<div><label>'+(w.tp?'Document no. (ROF / PO / voucher)':'Receipt no. / link')+'</label><input class="fld" data-k="rc" value="'+esc(w.rc)+'"></div><div><label>Approved by'+(w.ob?' <i>*</i>':'')+'</label><input class="fld" data-k="ap" value="'+esc(w.ap)+'"></div>'
+   +(w.tp?'':'<div class="full"><label>Paid from own pocket? (claim)</label><select class="fld" data-k="cs"><option value="">No \u2013 paid from the float</option>'+CLS.map(function(c){return'<option value="'+c+'"'+(w.cs===c?' selected':'')+'>Claim \u2013 '+c+'</option>'}).join('')+'</select></div>')}
+ else if(ty==='Income'){
+  h+='<div><label>Received from</label><input class="fld" data-k="tf" value="'+esc(w.tf)+'" placeholder="e.g. Sponsor / UIA"></div><div><label>Kind of income</label><select class="fld" data-k="sr">'+SRCS.map(function(p){return'<option'+((w.sr||'Advance')===p?' selected':'')+'>'+p+'</option>'}).join('')+'</select></div>'
+   +'<div class="full"><label>Matches expected income</label><select class="fld" data-k="iu2"><option value="">\u2014 not linked \u2014</option>'+S.inc.map(function(x){return'<option value="'+x.u+'"'+(w.iu2===x.u?' selected':'')+'>'+esc(x.src||x.ty)+' (RM '+m2(num(x.amt))+')</option>'}).join('')+'</select></div>'
+   +'<div><label>Reference / receipt</label><input class="fld" data-k="rc" value="'+esc(w.rc)+'"></div><div><label>Approved by</label><input class="fld" data-k="ap" value="'+esc(w.ap)+'"></div>'}
+ else{h+='<div><label>'+(ty==='Return'?'Returned to':'Reference')+'</label><input class="fld" data-k="tf" value="'+esc(w.tf)+'"></div><div><label>Payment method</label><select class="fld" data-k="pm"><option value="">Choose\u2026</option>'+PMS.map(function(p){return'<option'+(w.pm===p?' selected':'')+'>'+p+'</option>'}).join('')+'</select></div>'
+   +'<div><label>Reference / receipt</label><input class="fld" data-k="rc" value="'+esc(w.rc)+'"></div><div><label>Approved by</label><input class="fld" data-k="ap" value="'+esc(w.ap)+'"></div>'}
+ h+='</div><div id="ferr"></div><div class="mb"><button class="k" id="mc" type="button">Cancel</button><button class="g" id="ms" type="button">'+(isNew?'Save transaction':'Save changes')+'</button></div>';
+ if(!isNew)h+='<p class="hint" style="margin-top:10px">Created by '+esc(w.cb||'?')+' \u00B7 '+fdt(w.ct)+(w.eb?' \u00B7 last edited by '+esc(w.eb)+' \u00B7 '+fdt(w.et):'')+'</p>';
+ return h}
+function txModal(t,isNew,type,pre){if(guardLock())return;withWho(function(){
+ var w=t?JSON.parse(JSON.stringify(t)):Object.assign(newTx(),{ty:type||'Expense',d:isoToday()});if(pre)Object.assign(w,pre);
+ var m=modal(''),box=m.querySelector('.box');box.classList.add('wide');
+ function pull(){box.querySelectorAll('[data-k]').forEach(function(el){var k=el.getAttribute('data-k');if(k==='fco'||k==='fac'||k==='tco'||k==='tac')return;w[k]=k==='tp'?(el.value==='1'?1:0):el.value});
+  ['f','t'].forEach(function(p){var s=box.querySelector('[data-acc="'+p+'"]');if(!s)return;var co=p==='f'?'co':'tco',ac=p==='f'?'ac':'tac';
+   if(s.value==='__new'){w[co]=(box.querySelector('[data-k="'+p+'co"]')||{value:''}).value.trim();w[ac]=(box.querySelector('[data-k="'+p+'ac"]')||{value:''}).value.trim()}
+   else if(s.value){var a=accList().filter(function(x){return x.k===s.value})[0];if(a){w[co]=a.co;w[ac]=a.ac}}else{w[co]='';w[ac]=''}});
+  var b=box.querySelector('[data-bud]');if(b){var v=b.value;if(v==='out'){w.ob=1;w.cu='';w.iu=''}else if(v.indexOf('c:')===0){w.ob=0;w.cu=v.slice(2);w.iu=''}else if(v.indexOf('i:')===0){var f=findItem(v.slice(2));w.ob=0;w.iu=v.slice(2);w.cu=f?f.c.u:''}else{w.ob=0;w.cu='';w.iu=''}}}
+ function draw(){box.innerHTML=formHtml(w,isNew);wire()}
+ function wire(){
+  box.querySelectorAll('#seg button').forEach(function(b){b.onclick=function(){pull();w.ty=b.getAttribute('data-ty');if(w.ty!=='Expense'){w.ob=0}draw()}});
+  box.querySelectorAll('[data-acc]').forEach(function(s){s.onchange=function(){var nw=box.querySelector('[data-nw="'+s.getAttribute('data-acc')+'"]');nw.style.display=s.value==='__new'?'grid':'none'}});
+  var b=box.querySelector('[data-bud]');if(b)b.onchange=function(){pull();draw()};
+  var tpS=box.querySelector('[data-k="tp"]');if(tpS)tpS.onchange=function(){pull();draw()};
+  box.querySelector('#mc').onclick=function(){m.remove()};box.querySelector('#ms').onclick=save;
+  box.querySelectorAll('input.fld').forEach(function(i){i.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();save()}}})}
+ function save(){pull();var er=[],a=num(w.amt);w.amt=a;
+  if(!pd(w.d))er.push('Enter a date.');if(!(a>0))er.push('Enter an amount greater than zero.');
+  if(!tpOn(w)&&!String(w.co||'').trim()&&!String(w.ac||'').trim())er.push('Choose the account.');
+  if(w.ty==='Transfer'){if(!String(w.tco||'').trim()&&!String(w.tac||'').trim())er.push('Choose the account it goes to.');else if(akey(w.co,w.ac)===akey(w.tco,w.tac))er.push('From and To must be different accounts.')}
+  if(!String(w.de||'').trim())er.push('Add a short description.');
+  if(tpOn(w)&&!w.tk)er.push('Choose the document type (Honorarium, ROF or PO).');
+  if(w.ty==='Expense'){if(!w.tp&&!w.pm)er.push('Choose the payment method.');if(!w.ob&&!w.cu&&!w.iu)er.push('Choose the budget item, or "Outside the budget".');
+   if(w.ob){if(!String(w.why||'').trim())er.push('Explain why it is outside the budget.');if(!String(w.ap||'').trim())er.push('Outside-budget spending needs an approver.')}}
+  if(er.length){box.querySelector('#ferr').innerHTML='<div class="errbox">'+er.map(esc).join('<br>')+'</div>';return}
+  if(w.ty!=='Expense'){w.cu='';w.iu='';w.ob=0;w.tp=0}w.tp=w.tp?1:0;if(tpOn(w)){w.co='';w.ac='';w.pm='';w.cs=''}else w.tk='';if(w.ty!=='Transfer'){w.tco='';w.tac=''}if(w.ty!=='Income'){w.sr='';w.iu2=''}
+  var others=S.tx.filter(function(x){return x.u!==w.u}),wr=[];
+  var before=calcLedger(S.tx).cnt.neg,sim=others.concat([w]),after=calcLedger(sim).cnt.neg;
+  if(after>before)wr.push('This will put an account below zero at some point (more has gone out than came in by that date).');
+  if(w.d&&low(w.tf)&&(w.ty==='Expense'||w.ty==='Income')&&others.some(function(x){return!x.vd&&x.ty===w.ty&&x.d===w.d&&Math.abs(num(x.amt)-a)<0.005&&low(x.tf)===low(w.tf)}))wr.push('An entry with the same date, amount and name already exists \u2013 possible duplicate.');
+  function commit(){var now=Date.now();
+   if(isNew){w.cb=who();w.ct=now;w.eb='';w.et=now;w.lg1=1;S.tx.push(w);lg('add','Added '+w.ty+' RM '+m2(a)+' \u2013 '+w.de,w.u);
+    if(pre&&pre.fromCom){S.com=S.com.filter(function(c){return c.u!==pre.fromCom});lg('commit','Commitment paid and recorded: '+w.de,w.u)}}
+   else{var i=txFind(w.u),o=S.tx[i],ch=[];['d','ty','tp','tk','amt','co','ac','tco','tac','tf','de','cu','iu','pm','rc','ap','cs','why'].forEach(function(k){if(String(o[k])!==String(w[k]))ch.push(k+': '+(o[k]===''?'\u2014':o[k])+' \u2192 '+(w[k]===''?'\u2014':w[k]))});
+    w.eb=who();w.et=now;w.lg1=1;S.tx[i]=w;if(ch.length)lg('edit','Edited '+w.ty+' \u2013 '+w.de+' ('+ch.join('; ')+')',w.u)}
+   delete w.fromCom;m.remove();mark();paint();toast(isNew?'Saved.':'Changes saved.')}
+  if(wr.length){dlg(wr.join('\n\n')+'\n\nSave anyway?').then(function(ok){if(ok)commit()})}else commit()}
+ draw();var f=box.querySelector('input.fld,select.fld');if(f)f.focus()})}
+
+/* ================= BUDGET ================= */
+function ask(title,text,ok){return new Promise(function(res){var m=modal('<h3>'+esc(title)+'</h3><p class="dlg-text" style="white-space:pre-line">'+esc(text)+'</p><div class="mb"><button class="k" id="mc">Cancel</button><button class="b" id="mo">'+esc(ok||'OK')+'</button></div>');
+ m.querySelector('#mc').onclick=function(){m.remove();res(false)};m.querySelector('#mo').onclick=function(){m.remove();res(true)};m.querySelector('#mo').focus()})}
+function stChip(r,c){if(c.cont)return'<span class="chip tr">Reserve</span>';if(!r.has)return'';if(r.over)return'<span class="chip fb">Over budget'+(r.pct!=null?' '+Math.round(r.pct)+'%':'')+'</span>';return r.act>0?'<span class="chip gd">In budget</span>':'<span class="chip nt">No spending</span>'}
+var BW=[40,196,160,74,60,92,100,124,70,82,96,92,100,100,112,60,84,92,100,150,90,66,180,72];
+function itemRow(c,it,k,n,first,ro,span){var ph=ro?' readonly':'',u=it.u,id=u,h='<tr data-c="'+c.u+'" data-i="'+u+'">';
+ if(first)h+=catCell(c,span,k);
+ h+='<td><div class="itw"><input data-f="item" placeholder="Item" value="'+esc(it.item)+'"><button class="r sm" data-a="delit" type="button" title="Remove this item">\u00D7</button></div></td>'
+  +'<td><input class="n" data-f="price" inputmode="decimal" value="'+esc(it.price)+'"'+ph+'></td><td><input class="n" data-f="qty" inputmode="decimal" value="'+esc(it.qty)+'"'+ph+'></td>'
+  +'<td class="c-n pl" id="pl_'+id+'"></td>'+(first?'<td class="c-n pl cb" rowspan="'+n+'" id="cb_'+c.u+'"></td>':'')
+  +'<td class="ac" id="ai_'+id+'"></td><td class="c-n ac" id="bq_'+id+'"></td><td class="c-n ac" id="ap_'+id+'"></td><td class="c-n ac" id="sp_'+id+'"></td><td class="c-n ac" id="lf_'+id+'"></td>'
+  +(first?'<td class="c-n ac cb" rowspan="'+n+'" id="ca_'+c.u+'"></td><td class="c-n ac cb" rowspan="'+n+'" id="cl_'+c.u+'"></td><td class="ac cb" rowspan="'+n+'" id="cs_'+c.u+'"></td>':'')
+  +'<td class="c-n nd" id="nq_'+id+'"></td><td class="nd"><input class="n q" data-f="qt" inputmode="decimal" value="'+esc(it.qt)+'" title="Latest quote. Leave empty to use the latest paid price, or the planned price."></td><td class="c-n nd" id="na_'+id+'"></td>'
+  +(first?'<td class="c-n nd cb" rowspan="'+n+'" id="cnd_'+c.u+'"></td><td class="nd cb" rowspan="'+n+'" id="cs2_'+c.u+'"></td>':'')
+  +'<td class="c-n ck2" id="od_'+id+'"></td><td class="c-n ck2" id="ov_'+id+'"></td><td class="ck2"><input data-f="why" data-c="'+c.u+'" data-i="'+u+'" id="wy_'+id+'" placeholder="Why over? (required)" value="'+esc(it.why)+'" style="visibility:hidden"></td>'
+  +'<td class="act"><button class="k sm" data-a="additem" data-c="'+c.u+'" data-i="'+u+'" type="button" title="Add an item below this one">\uFF0B</button></td></tr>';return h}
+function catCell(c,span,k){return'<td class="rn" rowspan="'+span+'">'+k+'</td><td class="catc" rowspan="'+span+'"><input class="cn" data-c="'+c.u+'" data-f="cname" placeholder="Category name" value="'+esc(c.name)+'"><div id="cn_'+c.u+'" class="cmeta"></div>'
+ +'<button class="addit" data-a="additem" data-c="'+c.u+'" type="button">\uFF0B Add item</button><div class="cbtn"><button class="k sm" data-a="logexp" data-c="'+c.u+'" type="button">Log expense</button><button class="k sm" data-a="commit" data-c="'+c.u+'" type="button">Order / quote</button></div><button class="r sm rmcat" data-a="delcat" data-c="'+c.u+'" type="button" title="Remove this category">\u00D7 Remove category</button>'
+ +'<label class="cres"><input type="checkbox" data-f="cont" data-c="'+c.u+'"'+(c.cont?' checked':'')+'> Contingency reserve</label><input class="cwhy" id="cw_'+c.u+'" data-f="cwhy" data-c="'+c.u+'" placeholder="Why is this category over? (required)" value="'+esc(c.why)+'" style="display:none"></td>'}
+function catBlock(c,k,ro){var cms=S.com.filter(function(x){return x.cu===c.u}),nI=Math.max(1,c.items.length),span=nI+(cms.length?1:0),h='<tbody class="catb" id="cat_'+c.u+'">';
+ if(!c.items.length)h+='<tr data-c="'+c.u+'">'+catCell(c,span,k)+'<td colspan="'+(BW.length-2)+'" class="emp">No items yet \u2013 press <b>\uFF0B Add item</b> in this box.</td></tr>';
+ else c.items.forEach(function(it,j){h+=itemRow(c,it,k,c.items.length,j===0,ro,span)});
+ if(cms.length)h+='<tr class="cmrow"><td colspan="'+(BW.length-2)+'"><b>Ordered / quoted, not yet paid:</b> '+cms.map(function(x){var f=x.iu?findItem(x.iu):null;return'<span class="cmi">'+esc(x.de||(f?f.it.item:'')||'(no note)')+(x.tf?' \u00B7 '+esc(x.tf):'')+' <span class="chip nt">'+esc(x.st)+'</span>'+(x.d?' <span class="mut">pay by '+fd(x.d)+'</span>':'')+' <b>RM '+m2(num(x.amt))+'</b> <button class="g sm" data-a="paycom" data-u="'+x.u+'" type="button">Mark paid</button><button class="t sm" data-a="delcom" data-u="'+x.u+'" type="button">\u00D7</button></span>'}).join('')+'</td></tr>';
+ return h+'</tbody>'}
+function renderBt(){var ro=baseOn()||locked(),open=$('fund')&&$('fund').open,h='<div id="bsum" class="bsum"></div>';
+ h+='<div class="tool"><button class="g" data-a="addcat" type="button">\uFF0B Add category</button><button class="b" data-a="syncprop" type="button" title="Copy the approved budget from a saved proposal">&#128260; Sync from proposal\u2026</button>'+(S.prop?'<span class="chip tr" title="Last synced '+fdt(S.prop.at)+'">Proposal: '+esc(S.prop.name)+'</span>':'');
+ h+=baseOn()?'<button class="k" data-a="revs" type="button">Budget changes ('+S.revs.length+')</button><span class="chip gd" title="Prices and quantities can only change through a recorded revision with a reason and an approver.">&#128274; Approved budget locked \u2013 '+esc(S.base.by)+', '+fdt(S.base.at).slice(0,10)+'</span>':'<button class="b" data-a="lockbase" type="button">Lock approved budget</button><span class="info">Lock it once approved. After that, changes need a reason and an approver.</span>';
+ h+='</div><details class="panel fund" id="fund"'+(open?' open':'')+'><summary id="fsum"></summary><div id="incw"></div></details>';
+ var grp='<tr class="g1"><th colspan="7" class="gp">PLAN (approved)</th><th colspan="8" class="ga">ACTUAL \u2013 taken from the Transactions</th><th colspan="5" class="gn">STILL TO BUY</th><th colspan="3" class="gc">CHECK</th><th class="gp"></th></tr>';
+ var cols=['#','Category','Item','Price (RM)','Qty','Amount (RM)','Category budget','Actual item','Bought qty','Actual price','Total actual','Left (item)','Category actual','Category left','Status','Need','Quote price','Total (RM)','Category total','Status','Ordered, unpaid','Over %','Reason for overspend',''];
+ var colhead='<tr class="g2">'+cols.map(function(x){return'<th>'+x+'</th>'}).join('')+'</tr>';
+ h+='<div class="panel gwrap" id="btg"><table class="grid bgrid" style="width:'+BW.reduce(function(a,b){return a+b},0)+'px"><colgroup>'+BW.map(function(w){return'<col style="width:'+w+'px">'}).join('')+'</colgroup><thead>'+grp+colhead+'</thead>'
+  +(S.cats.length?S.cats.map(function(c,i){return catBlock(c,i+1,ro)}).join(''):'<tbody><tr><td colspan="'+BW.length+'" class="empty">No categories yet. Press <b>\uFF0B Add category</b>, then <b>\uFF0B Add item</b> inside the category box. Or <a href="#" data-a="sample" class="lnk">load the example data</a>.</td></tr></tbody>')
+  +'<tfoot><tr><td colspan="5" class="l">TOTAL</td><td class="c-n" id="tf_pl"></td><td></td><td colspan="3"></td><td class="c-n" id="tf_sp"></td><td class="c-n" id="tf_lf"></td><td colspan="4"></td><td></td><td></td><td class="c-n" id="tf_na"></td><td colspan="6"></td></tr></tfoot></table></div>';
+ $('btw').innerHTML=h;paintBt()}
+function paintBt(){var L=calcLedger(),B=calcBudget(L),T=B.T,tol=S.tol||0,sur=rn(T.expInc-T.total),bs='';
+ function C(k,v,s,cl){return'<div class="c"><div class="k">'+k+'</div><div class="v '+(cl||'')+'">'+v+'</div><div class="s">'+s+'</div></div>'}
+ bs+=C('Approved plan','RM '+m2(T.total),baseOn()?(Math.abs(T.total-S.base.total)<0.005?'Matches the approved baseline':'Baseline RM '+m2(S.base.total)+' \u2022 now '+(T.total>S.base.total?'+':'\u2212')+m2(T.total-S.base.total)):'Not locked yet');
+ bs+=C('Expected income','RM '+m2(T.expInc),'Received RM '+m2(T.expRcvd));
+ bs+=C('Planned surplus / (deficit)',(sur<0?'(':'')+'RM '+m2(sur)+(sur<0?')':''),T.expInc?'Expected income \u2212 plan':'Add expected income below',sur<-tol?'bad':(T.expInc?'ok':''));
+ bs+=C('Ordered, not yet paid','RM '+m2(T.com),'Still to buy RM '+m2(T.need));
+ bs+=C('Spent so far','RM '+m2(L.spent),T.total?Math.round(L.spent/T.total*100)+'% of the plan':'');
+ var bse=$('bsum');if(bse)bse.innerHTML=bs;
+ var fs=$('fsum');if(fs)fs.innerHTML='Expected income (funding) \u2013 <b>RM '+m2(T.expInc)+'</b> expected \u00B7 RM '+m2(T.expRcvd)+' received \u00B7 '+S.inc.length+' source'+(S.inc.length===1?'':'s')+' <span class="mut">(click to open)</span>';
+ var ih='<table class="grid auto"><thead><tr><th>Source</th><th>Kind</th><th class="num">Expected (RM)</th><th>Expected on</th><th class="num">Received (RM)</th><th class="num">Outstanding (RM)</th><th></th></tr></thead><tbody>';
+ S.inc.forEach(function(x){var rc=0;S.tx.forEach(function(t){if(!t.vd&&t.ty==='Income'&&t.iu2===x.u)rc+=num(t.amt)});var out=rn(num(x.amt)-rc);
+  ih+='<tr data-inc="'+x.u+'"><td><input data-f="src" value="'+esc(x.src)+'" placeholder="e.g. Faculty advance"></td><td><select data-f="ty">'+SRCS.map(function(p){return'<option'+(x.ty===p?' selected':'')+'>'+p+'</option>'}).join('')+'</select></td><td class="num"><input data-f="amt" inputmode="decimal" style="text-align:right" value="'+esc(x.amt)+'"></td><td><input type="date" data-f="d" value="'+esc(x.d)+'"></td><td class="num">'+moneyH(rn(rc))+'</td><td class="num">'+(out>tol?'<span class="warn">'+m2(out)+'</span>':out<-tol?'<span class="ok">+'+m2(-out)+'</span>':'<span class="ok">\u2713</span>')+'</td><td><button class="t sm" data-a="delinc" data-u="'+x.u+'" type="button">\u00D7</button></td></tr>'});
+ ih+='</tbody></table><div style="padding:8px 12px"><button class="k sm" data-a="addinc" type="button">\uFF0B Add expected income</button></div>';
+ var iw=$('incw');if(iw&&!iw.contains(document.activeElement))iw.innerHTML=ih;
+ var tpl=0,tsp=0,tna=0;
+ S.cats.forEach(function(c){var r=B.C[c.u];if(!r)return;tpl+=r.plan;tsp+=r.act;tna+=r.need;
+  function T2(id,v){var e=$(id);if(e)e.innerHTML=v}
+  T2('cs_'+c.u,stChip(r,c));T2('cb_'+c.u,r.plan?m2(r.plan):'\u2013');T2('ca_'+c.u,r.act?m2(r.act):'\u2013');T2('cl_'+c.u,r.has?(r.left<0?'<span class="bad">('+m2(-r.left)+')</span>':m2(r.left)):'\u2013');
+  T2('cnd_'+c.u,r.need?m2(r.need):'\u2013');T2('cs2_'+c.u,!r.plan?'':(r.need<=tol?'<span class="chip gd">Nothing left to buy</span>':(r.need<=r.left+tol?'<span class="chip gd">Budget can cover it</span>':'<span class="chip fb">Over budget</span>')));
+  var ce=$('cat_'+c.u);if(ce)ce.classList.toggle('over',!!(r.over&&!c.cont));
+  var anyItemOver=r.items.some(function(q){return q.over}),cw=$('cw_'+c.u);if(cw)cw.style.display=(r.over&&!c.cont&&!anyItemOver)?'block':'none';
+  T2('cn_'+c.u,(r.com?'Ordered RM '+m2(r.com):'')+(r.com&&r.need?' \u00B7 ':'')+(r.need?'To buy RM '+m2(r.need):''));
+  c.items.forEach(function(it,k){var q=r.items[k],id=it.u,empty=!(it.item||it.price||it.qty),x=B.I[id]||{act:0,qty:0};
+   T2('pl_'+id,q.plan?m2(q.plan):'\u2013');
+   var ai=q.sub?esc(q.sub):'\u2013';if(it.old)ai+=' <span class="chip nt" title="Typed on the old budget sheet: '+(it.old.ab?'bought '+esc(it.old.ab)+' ':'')+(it.old.at?'= RM '+esc(it.old.at):(it.old.ap?'@ '+esc(it.old.ap):''))+'. It is not in the ledger, so it is not counted.">old sheet</span>';T2('ai_'+id,ai);
+   T2('bq_'+id,x.qty?String(rn(x.qty)):'\u2013');T2('ap_'+id,x.qty>0&&q.act?m2(q.act/x.qty):'\u2013');
+   T2('sp_'+id,q.act?'<a href="#" data-a="gotx" data-c="'+c.u+'" data-i="'+id+'" class="lnk" title="See the entries">'+m2(q.act)+'</a>':'\u2013');
+   T2('lf_'+id,empty&&!q.act?'':(q.left<0?'<span class="bad">('+m2(-q.left)+')</span>':m2(q.left)));
+   T2('nq_'+id,q.needQ?String(rn(q.needQ)):(q.plan||q.act?'<span class="ok">\u2713</span>':''));
+   var qe=document.querySelector('tr[data-i="'+id+'"] input.q');if(qe)qe.placeholder=q.needP?m2(q.needP):'';
+   T2('na_'+id,q.needQ?'<span title="'+q.needSrc+'">'+m2(q.needAmt)+'</span>':'');
+   T2('od_'+id,q.com?m2(q.com):'');T2('ov_'+id,q.over&&q.pct!=null?'<span class="'+(q.flag?'bad':'warn')+'">+'+Math.round(q.pct)+'%</span>':(q.over?'<span class="bad">over</span>':''));
+   var wy=$('wy_'+id);if(wy)wy.style.visibility=q.over?'visible':'hidden'})});
+ function E(id,v){var e=$(id);if(e)e.textContent=v}E('tf_pl',m2(tpl));E('tf_sp',m2(tsp));E('tf_lf',m2(tpl-tsp));E('tf_na',m2(tna));
+ return B}
+function setCatTombs(c){S.del.push(c.u);c.items.forEach(function(i){S.del.push(i.u)})}
+function planGuard(){if(locked()){toast('The books are locked.');return true}return false}
+function itemTx(iu){return S.tx.filter(function(t){return!t.vd&&t.iu===iu}).length}
+function catTx(cu){return S.tx.filter(function(t){return!t.vd&&t.cu===cu}).length}
+$('btw').addEventListener('input',function(e){var t=e.target,f=t.getAttribute('data-f');if(!f)return;
+ if(t.closest('[data-inc]')){var x=S.inc.filter(function(i){return i.u===t.closest('[data-inc]').getAttribute('data-inc')})[0];if(!x)return;x[f]=t.value;x.mt=Date.now();mark();paintBt();return}
+ var c=catBy(t.getAttribute('data-c')||(t.closest('tr')||{getAttribute:function(){}}).getAttribute('data-c'));if(!c)return;
+ if(f==='cname')c.name=t.value;else if(f==='cwhy')c.why=t.value;else if(f==='cont')return;else{var iu=t.getAttribute('data-i')||t.closest('tr').getAttribute('data-i'),it=c.items.filter(function(i){return i.u===iu})[0];if(!it)return;
+  if((f==='price'||f==='qty')&&(baseOn()||locked()))return;it[f]=t.value;it.mt=Date.now()}
+ c.mt=Date.now();mark();paintBt()});
+$('btw').addEventListener('change',function(e){var t=e.target,f=t.getAttribute('data-f');
+ if(f==='cont'){var c=catBy(t.getAttribute('data-c'));if(c){c.cont=t.checked;c.mt=Date.now();lg('budget',(t.checked?'Marked':'Unmarked')+' "'+c.name+'" as contingency reserve',c.u);mark();paintBt()}}
+ if(t.closest('[data-inc]')&&t.tagName==='SELECT'){var x=S.inc.filter(function(i){return i.u===t.closest('[data-inc]').getAttribute('data-inc')})[0];if(x){x[f]=t.value;x.mt=Date.now();mark();paintBt()}}
+ if(f==='cname'||f==='item')renderTx()});
+$('btw').addEventListener('focusin',function(e){var t=e.target,f=t.getAttribute&&t.getAttribute('data-f');if((f==='price'||f==='qty')&&t.readOnly&&!locked()){var tr=t.closest('tr'),c=catBy(tr.getAttribute('data-c')),it=c&&c.items.filter(function(i){return i.u===tr.getAttribute('data-i')})[0];t.blur();if(it)reviseModal(c,it,'change')}
+ else if((f==='price'||f==='qty')&&t.readOnly&&locked())toast('The books are locked.')});
+$('btw').addEventListener('click',function(e){var b=e.target.closest('[data-a]');if(!b)return;var a=b.getAttribute('data-a'),cu=b.getAttribute('data-c')||((b.closest('tr[data-c]')||{getAttribute:function(){return''}}).getAttribute('data-c')),c=cu?catBy(cu):null;
+ if(a==='gotx'){e.preventDefault();var f=findItem(b.getAttribute('data-i'));F.q=low(f?f.it.item||f.c.name:'');$('fq').value=F.q;show('tx');return}
+ if(a==='addcat'){if(planGuard())return;withWho(function(){var k=blankCat();k.mt=Date.now();S.cats.push(k);lg('budget','Added a category',k.u);mark();renderBt();var n=document.querySelector('#cat_'+k.u+' input.cn');if(n)n.focus()})}
+ else if(a==='additem'){if(planGuard())return;withWho(function(){if(baseOn()){reviseModal(c,blankItem(),'add');return}var it=blankItem();it.mt=Date.now();var after=b.getAttribute('data-i'),ix=-1;c.items.forEach(function(q,j){if(q.u===after)ix=j});if(ix>=0)c.items.splice(ix+1,0,it);else c.items.push(it);c.mt=Date.now();mark();renderBt();var n=document.querySelector('tr[data-i="'+it.u+'"] input[data-f="item"]');if(n)n.focus()})}
+ else if(a==='delit'){var tr=b.closest('tr'),it=c.items.filter(function(i){return i.u===tr.getAttribute('data-i')})[0];if(planGuard())return;
+  if(itemTx(it.u)){toast('This item has '+itemTx(it.u)+' expense(s) linked to it. Void or re-link them first.');return}
+  withWho(function(){if(baseOn()){reviseModal(c,it,'remove');return}var go=function(){c.items=c.items.filter(function(i){return i!==it});S.del.push(it.u);c.mt=Date.now();lg('budget','Removed item "'+(it.item||'')+'" from '+(c.name||'category'),it.u);mark();renderBt();renderTx()};
+   if(it.item||it.price||it.qty)ask('Remove this item?',(it.item||'(unnamed)')+' will be removed from the plan.','Remove').then(function(ok){if(ok)go()});else go()})}
+ else if(a==='delcat'){if(planGuard())return;if(catTx(c.u)||c.items.some(function(i){return itemTx(i.u)})){toast('This category has expenses linked to it. Void or re-link them first.');return}
+  if(baseOn()&&c.items.length){removeCatLocked(c);return}
+  withWho(function(){var go=function(){S.cats=S.cats.filter(function(x){return x!==c});setCatTombs(c);lg('budget','Removed category "'+(c.name||'')+'"',c.u);mark();renderBt()};if(c.name||c.items.length)ask('Remove this category?','"'+(c.name||'(unnamed)')+'" and its items will be removed from the plan.','Remove').then(function(ok){if(ok)go()});else go()})}
+ else if(a==='logexp'){txModal(null,true,'Expense',{cu:c.u})}
+ else if(a==='commit'){comModal(c)}
+ else if(a==='paycom'){var x=S.com.filter(function(i){return i.u===b.getAttribute('data-u')})[0];if(x)txModal(null,true,'Expense',{cu:x.cu,iu:x.iu,tf:x.tf,amt:num(x.amt),de:x.de,fromCom:x.u})}
+ else if(a==='delcom'){var x2=S.com.filter(function(i){return i.u===b.getAttribute('data-u')})[0];if(x2)ask('Remove this order / quote?','RM '+m2(num(x2.amt))+' '+(x2.de||'')+' will no longer count as ordered.','Remove').then(function(ok){if(ok){S.com=S.com.filter(function(i){return i!==x2});S.del.push(x2.u);lg('commit','Removed order/quote RM '+m2(num(x2.amt))+' '+(x2.de||''),x2.u);mark();renderBt()}})}
+ else if(a==='addinc'){var n={u:uid(),src:'',ty:'Advance',amt:'',d:'',mt:Date.now()};S.inc.push(n);mark();if(document.activeElement)document.activeElement.blur();paintBt();var inp=document.querySelector('[data-inc="'+n.u+'"] input');if(inp)inp.focus()}
+ else if(a==='delinc'){var u=b.getAttribute('data-u'),used=S.tx.some(function(t){return!t.vd&&t.iu2===u});if(used){toast('Income entries are linked to this. Unlink them first.');return}S.inc=S.inc.filter(function(i){return i.u!==u});S.del.push(u);mark();if(document.activeElement)document.activeElement.blur();paintBt()}
+ else if(a==='lockbase')lockBase();else if(a==='syncprop')syncPropPick();else if(a==='revs')revsModal()});
+function comModal(c){withWho(function(){var m=modal('<h3>Order / quote \u2013 '+esc(c.name||'category')+'</h3><p class="dlg-text">Money that is promised or quoted but not paid yet. It shows up as "ordered" so you can plan cash. When you pay, press Mark paid to record the expense.</p><div class="frm"><div><label>Amount (RM) <i>*</i></label><input class="fld" id="ca" inputmode="decimal"></div><div><label>Expected payment date</label><input type="date" class="fld" id="cd"></div><div><label>Item (optional)</label><select class="fld" id="ci"><option value="">\u2014 whole category \u2014</option>'+c.items.map(function(i){return'<option value="'+i.u+'">'+esc(i.item||'(unnamed)')+'</option>'}).join('')+'</select></div><div><label>Status</label><select class="fld" id="cs"><option>Ordered</option><option>Quoted</option></select></div><div><label>Seller</label><input class="fld" id="ct"></div><div><label>Note</label><input class="fld" id="cn"></div></div><div id="ferr"></div><div class="mb"><button class="k" id="mc">Cancel</button><button class="b" id="mo">Save</button></div>');
+ m.querySelector('#ca').focus();m.querySelector('#mc').onclick=function(){m.remove()};
+ m.querySelector('#mo').onclick=function(){var a=num(m.querySelector('#ca').value);if(!(a>0)){m.querySelector('#ferr').innerHTML='<div class="errbox">Enter the amount.</div>';return}
+  var x={u:uid(),d:m.querySelector('#cd').value,cu:c.u,iu:m.querySelector('#ci').value,tf:m.querySelector('#ct').value.trim(),amt:String(a),de:m.querySelector('#cn').value.trim(),st:m.querySelector('#cs').value,mt:Date.now()};
+  S.com.push(x);lg('commit',x.st+' RM '+m2(a)+' in "'+(c.name||'')+'" '+(x.tf?'('+x.tf+')':''),x.u);m.remove();mark();renderBt()}})}
+/* ---- sync the approved budget from a saved Proposal ----
+   Copies the proposal's categories + items (price x qty) into the plan and freezes them as the approved budget.
+   The K/C/D/I/O/M approved budget is only the TOTAL budget approved - it is never copied in as income. */
+function isKcdiom(n){return /approved\s+budget|k\s*\/?\s*c\s*\/?\s*d\s*\/?\s*i\s*\/?\s*o\s*\/?\s*m/i.test(String(n||''))}
+function parseProposalBudget(d){
+ var cov=new DOMParser().parseFromString('<body>'+String((d&&d.cover)||''),'text/html'),
+  pg=new DOMParser().parseFromString('<body>'+((d&&d.pages)||[]).join(''),'text/html');
+ function val(tr,q){var e=tr.querySelector(q);return e?(parseFloat(e.getAttribute('value'))||0):0}
+ var pn=cov.querySelector('[data-k="prog"]'),P={name:pn?pn.textContent.trim():'',cats:[],inc:[]};
+ [].forEach.call(pg.querySelectorAll('#inc tbody tr'),function(tr){var f=tr.querySelector('.f'),n=f?f.textContent.trim():'',v=val(tr,'input.ia');
+  if((n||v)&&!isKcdiom(n))P.inc.push({src:n,amt:v})});
+ [].forEach.call(pg.querySelectorAll('#cats .cat'),function(c){
+  var nm=c.querySelector('b .f'),cat={name:nm?nm.textContent.trim():'',items:[]},grp='';
+  [].forEach.call(c.querySelectorAll('tbody tr'),function(tr){
+   var f=tr.querySelector('.f'),name=f?f.textContent.trim():'',cl=tr.classList;
+   if(cl.contains('rg')){grp=name;return}
+   if(!cl.contains('ri')&&!cl.contains('rs'))return;
+   var pr=val(tr,'input.pr'),qt=val(tr,'input.qt');if(!name&&!(pr*qt))return;
+   if(cl.contains('rs')&&grp)name=grp+' \u2013 '+name;else grp='';
+   cat.items.push({item:name,price:pr,qty:qt})});
+  if(cat.items.length)P.cats.push(cat)});   /* empty categories are not copied */
+ return P}
+function applyProposalBudget(P,src){
+ if(locked()){toast('The books are locked. Unlock them in Summary first.');return}
+ var wasLocked=baseOn(),now=Date.now(),added=0,upd=0,gone=0,kept=[],byName={},used={},out=[];
+ S.cats.forEach(function(c){var k=low(c.name);if(!byName[k])byName[k]=c});
+ P.cats.forEach(function(pc){
+  var c=byName[low(pc.name)];if(c&&used[c.u])c=null;
+  if(!c){c=blankCat();c.name=pc.name}else used[c.u]=1;
+  c.mt=now;var oi=c.items.slice(),ou={},items=[];
+  pc.items.forEach(function(pi){var it=null;
+   for(var j=0;j<oi.length;j++){if(!ou[oi[j].u]&&low(oi[j].item)===low(pi.item)){it=oi[j];break}}
+   if(it){ou[it.u]=1;if(num(it.price)!==pi.price||num(it.qty)!==pi.qty)upd++}else{it=blankItem();it.item=pi.item;added++}
+   it.price=pi.price?String(pi.price):'';it.qty=pi.qty?String(pi.qty):'';it.mt=now;items.push(it)});
+  oi.forEach(function(it){if(ou[it.u])return;
+   if(itemTx(it.u)||S.com.some(function(x){return x.iu===it.u})){items.push(it);kept.push(it.item||'(unnamed item)')}
+   else{S.del.push(it.u);gone++}});
+  c.items=items;out.push(c)});
+ S.cats.forEach(function(c){if(used[c.u])return;
+  if(c.cont||catTx(c.u)||c.items.some(function(i){return itemTx(i.u)})){out.push(c);kept.push(c.name||'(unnamed category)')}else setCatTombs(c)});
+ S.cats=out;
+ P.inc.forEach(function(pi){var e=S.inc.filter(function(x){return low(x.src)===low(pi.src)})[0],a=pi.amt?String(pi.amt):'';
+  if(e){e.amt=a;e.mt=now}else S.inc.push({u:uid(),src:pi.src,ty:'Other',amt:a,d:'',mt:now})});
+ var tot=budgetTotal(),snap=[];S.cats.forEach(function(c){c.items.forEach(function(i){snap.push({iu:i.u,cu:c.u,cname:c.name,item:i.item,amt:itemPlan(i)})})});
+ /* stays editable (categories/items can still be deleted with the x) until you press "Lock approved budget"; an already locked budget is refreshed */
+ if(wasLocked)S.base={on:1,at:now,by:'Proposal \u201c'+src.name+'\u201d',snap:snap,total:tot};
+ S.prop={id:src.id,name:src.name,at:now};
+ if(!S.name&&P.name)S.name=P.name;
+ lg('sync-proposal','Approved budget copied from proposal "'+src.name+'": RM '+m2(tot)+' ('+added+' items added, '+upd+' changed, '+gone+' removed'+(kept.length?', '+kept.length+' kept because they already have entries':'')+')','');
+ mark();setAll();toast('Budget RM '+m2(tot)+' copied from \u201c'+src.name+'\u201d'+(wasLocked?'':'. Not locked yet: edit or delete freely, then press Lock approved budget')+(kept.length?'. Kept (already used): '+kept.slice(0,3).join(', ')+(kept.length>3?'\u2026':''):''))}
+function syncPropPick(){
+ if(locked()){toast('The books are locked. Unlock them in Summary first.');return}
+ withWho(function(){
+  var m=modal('<h3>Sync approved budget from a proposal</h3><p class="dlg-text">Choose the proposal. Its categories and items are copied here as the plan. It stays editable until you press Lock approved budget. Entries you already made keep their links where the item names match. The K/C/D/I/O/M approved budget is the total budget approved, not income, so it is not added to the expected income.</p><div id="dl">Loading\u2026</div><div class="mb"><button class="k" id="mc">Cancel</button></div>');
+  m.querySelector('#mc').onclick=function(){m.remove()};
+  call('listDrafts',['proposal']).then(function(a){
+   var h=a.length?'':'<p class="dlg-text">No saved proposals yet. Save a proposal first, then sync it here.</p>';
+   a.forEach(function(d,i){h+='<div class="row"><span>'+esc(d.name)+'<small>'+(d.status==='completed'?'Completed':'Draft')+' \u2022 '+fdt(d.updated)+'</small></span><button class="b" data-p="'+i+'">Sync</button></div>'});
+   var dl=m.querySelector('#dl');dl.innerHTML=h;
+   dl.onclick=function(e){var i=e.target.getAttribute&&e.target.getAttribute('data-p');if(i==null)return;var d=a[i];m.remove();
+    ask('Copy the approved budget from \u201c'+d.name+'\u201d?','The plan will be replaced by the proposal\u2019s items.'+(baseOn()?' The current approved budget will be replaced.':''),'Copy budget').then(function(ok){if(!ok)return;
+     call('openDraft',[d.id,'proposal']).then(function(r){applyProposalBudget(parseProposalBudget(JSON.parse(r.json)),{id:r.id,name:r.name||d.name})}).catch(function(er){toast(er.message)})})}
+  }).catch(function(e){var dl=m.querySelector('#dl');if(dl)dl.textContent=e.message})})}
+function lockBase(){withWho(function(){var tot=budgetTotal();if(!tot){toast('Add some items with prices first.');return}
+ var m=modal('<h3>Lock the approved budget</h3><p class="dlg-text">This freezes the plan at RM '+m2(tot)+'. Afterwards prices and quantities can only change through a recorded revision with a reason and the name of the approver.</p><label class="dlg-text" style="display:block;margin-bottom:3px"><b>Approved by</b></label><input class="dlg-input" id="ab"><div id="ferr"></div><div class="mb"><button class="k" id="mc">Cancel</button><button class="b" id="mo">Lock approved budget</button></div>');
+ m.querySelector('#ab').focus();m.querySelector('#mc').onclick=function(){m.remove()};
+ m.querySelector('#mo').onclick=function(){var ab=m.querySelector('#ab').value.trim();if(!ab){m.querySelector('#ferr').innerHTML='<div class="errbox">Enter who approved it.</div>';return}
+  var snap=[];S.cats.forEach(function(c){c.items.forEach(function(i){snap.push({iu:i.u,cu:c.u,cname:c.name,item:i.item,amt:itemPlan(i)})})});
+  S.base={on:1,at:Date.now(),by:ab,snap:snap,total:tot};lg('lock-budget','Approved budget locked at RM '+m2(tot)+' \u2013 approved by '+ab,'');m.remove();mark();renderBt();paint()}})}
+function reviseModal(c,it,mode){withWho(function(){var isAdd=mode==='add',isRm=mode==='remove',
+ m=modal('<h3>'+(isAdd?'Add an item to the approved budget':isRm?'Remove from the approved budget':'Revise the approved budget')+'</h3><p class="dlg-text">The budget is locked. Every change is recorded with a reason and an approver.</p><div class="frm">'
+ +(isAdd?'<div class="full"><label>Item <i>*</i></label><input class="fld" id="rn"></div>':'<div class="full"><b>'+esc(c.name||'')+' \u203A '+esc(it.item||'(item)')+'</b></div>')
+ +(isRm?'':'<div><label>Price (RM)</label><input class="fld" id="rp" inputmode="decimal" value="'+esc(it.price)+'"></div><div><label>Quantity</label><input class="fld" id="rq" inputmode="decimal" value="'+esc(it.qty)+'"></div>')
+ +'<div class="full"><label>Reason <i>*</i></label><input class="fld" id="rr"></div><div class="full"><label>Approved by <i>*</i></label><input class="fld" id="ra"></div></div><div id="ferr"></div><div class="mb"><button class="k" id="mc">Cancel</button><button class="b" id="mo">Record change</button></div>');
+ m.querySelector(isAdd?'#rn':'#rp'||'#rr').focus&&(m.querySelector(isAdd?'#rn':(isRm?'#rr':'#rp')).focus());m.querySelector('#mc').onclick=function(){m.remove()};
+ m.querySelector('#mo').onclick=function(){var r=m.querySelector('#rr').value.trim(),a=m.querySelector('#ra').value.trim(),er=[];if(!r)er.push('Give a reason.');if(!a)er.push('Enter the approver.');if(isAdd&&!m.querySelector('#rn').value.trim())er.push('Name the item.');
+  if(er.length){m.querySelector('#ferr').innerHTML='<div class="errbox">'+er.join('<br>')+'</div>';return}
+  var from={price:it.price,qty:it.qty,amt:itemPlan(it)},rev={u:uid(),t:Date.now(),by:who(),k:mode,cat:c.name,item:isAdd?m.querySelector('#rn').value.trim():it.item,reason:r,approver:a,from:from};
+  if(isRm){c.items=c.items.filter(function(i){return i!==it});S.del.push(it.u);rev.delta=-from.amt}
+  else{var n=isAdd?it:it;if(isAdd){n.item=rev.item;c.items.push(n)}n.price=m.querySelector('#rp').value.trim();n.qty=m.querySelector('#rq').value.trim();n.mt=Date.now();rev.to={price:n.price,qty:n.qty,amt:itemPlan(n)};rev.delta=rn(rev.to.amt-(isAdd?0:from.amt))}
+  c.mt=Date.now();S.revs.push(rev);lg('revision',(isAdd?'Added':isRm?'Removed':'Revised')+' "'+rev.item+'" in '+(c.name||'')+': '+(rev.delta>=0?'+':'\u2212')+'RM '+m2(rev.delta)+' \u2013 '+r+' (approved by '+a+')',it.u);
+  m.remove();mark();renderBt();paint()}})}
+function removeCatLocked(c){withWho(function(){
+ var tot=0;c.items.forEach(function(i){tot+=itemPlan(i)});tot=rn(tot);
+ var m=modal('<h3>Remove category from the approved budget</h3><p class="dlg-text">The budget is locked. Removing <b>'+esc(c.name||'(unnamed)')+'</b> takes out '+c.items.length+' item(s), RM '+m2(tot)+'. Each removal is recorded with the reason and approver.</p><div class="frm"><div class="full"><label>Reason <i>*</i></label><input class="fld" id="rr"></div><div class="full"><label>Approved by <i>*</i></label><input class="fld" id="ra"></div></div><div id="ferr"></div><div class="mb"><button class="k" id="mc">Cancel</button><button class="b" id="mo">Remove category</button></div>');
+ m.querySelector('#rr').focus();m.querySelector('#mc').onclick=function(){m.remove()};
+ m.querySelector('#mo').onclick=function(){var r=m.querySelector('#rr').value.trim(),a=m.querySelector('#ra').value.trim(),er=[];if(!r)er.push('Give a reason.');if(!a)er.push('Enter the approver.');
+  if(er.length){m.querySelector('#ferr').innerHTML='<div class="errbox">'+er.join('<br>')+'</div>';return}
+  c.items.forEach(function(it){var amt=itemPlan(it);S.revs.push({u:uid(),t:Date.now(),by:who(),k:'remove',cat:c.name,item:it.item,reason:r,approver:a,from:{price:it.price,qty:it.qty,amt:amt},delta:-amt});
+   lg('revision','Removed "'+(it.item||'')+'" in '+(c.name||'')+': \u2212RM '+m2(amt)+' \u2013 '+r+' (approved by '+a+')',it.u)});
+  S.cats=S.cats.filter(function(x){return x!==c});setCatTombs(c);lg('budget','Removed category "'+(c.name||'')+'" (approved by '+a+')',c.u);
+  m.remove();mark();renderBt();paint();renderTx()}})}
+function revsModal(){var m=modal('<h3>Changes to the approved budget</h3>'+(S.revs.length?'<table class="lst"><thead><tr><th>When</th><th>Change</th><th class="num">RM</th><th>Reason / approver</th></tr></thead><tbody>'+S.revs.slice().reverse().map(function(r){return'<tr><td>'+fdt(r.t)+'<br><span class="mut">'+esc(r.by)+'</span></td><td>'+esc(r.k)+': '+esc(r.cat||'')+' \u203A '+esc(r.item||'')+'</td><td class="num">'+(r.delta>=0?'+':'\u2212')+m2(r.delta)+'</td><td>'+esc(r.reason)+'<br><span class="mut">approved by '+esc(r.approver)+'</span></td></tr>'}).join('')+'</tbody></table>':'<p class="dlg-text">No changes since the budget was approved.</p>')+'<div class="mb"><button class="k" id="mc">Close</button></div>');m.querySelector('.box').classList.add('wide');m.querySelector('#mc').onclick=function(){m.remove()}}
+
+/* ================= PEOPLE & CASH ================= */
+function renderAc(L){var tol=S.tol||0,keys=Object.keys(L.acc);
+ if(!keys.length){$('acw').innerHTML='<div class="panel empty">No accounts yet. They appear as soon as you record a transaction.</div>';return}
+ var cos={},co=[];keys.forEach(function(k){var a=L.acc[k],c=a.co||'(no committee)';if(!cos[c]){cos[c]=[];co.push(c)}cos[c].push(k)});co.sort();
+ var h='<div class="tool"><span class="info">Money held by each person / account, worked out from the Transactions. Click a row to see its transactions. Count the physical cash at the end and type it in the Counted cash column.</span></div>';
+ var TB=0,TC=0,anyC=false,TR=0,TO=0,TS=0;
+ h+='<div class="panel lst-wrap" style="margin-bottom:14px"><table class="grid auto"><thead><tr><th style="text-align:left">Committee / person</th><th>Received</th><th>Paid out</th><th>Spent</th><th>Cash held</th><th>Claims</th><th>Position</th><th>Counted cash</th><th>Difference</th></tr></thead><tbody>';
+ co.forEach(function(c){h+='<tr class="grp"><td colspan="9">'+esc(c)+'</td></tr>';
+  cos[c].sort().forEach(function(k){var a=L.acc[k],b=L.bal[k]||0,ct=S.counts[k],cl=a.cl;TB+=b;TR+=a.rec;TO+=a.out;TS+=a.spent;
+   var pos=b>tol?'<span class="chip fl">Holds RM '+m2(b)+'</span>':b<-tol?'<span class="chip fb">Owed RM '+m2(-b)+'</span>':'<span class="chip gd">Settled</span>';
+   var cls=[];if(cl.pending)cls.push('<span class="chip fl">pending '+m2(cl.pending)+'</span>');if(cl.approved)cls.push('<span class="chip tr">approved '+m2(cl.approved)+'</span>');if(cl.paid)cls.push('<span class="chip gd">paid '+m2(cl.paid)+'</span>');
+   var diff='';if(ct&&ct.amt!==''&&ct.amt!=null){anyC=true;TC+=num(ct.amt);var d=rn(num(ct.amt)-b);diff=Math.abs(d)<=tol?'<span class="chip gd">Balanced</span>':'<span class="chip fb">'+(d<0?'Short ':'Over ')+m2(Math.abs(d))+'</span> <input class="fld" data-note="'+esc(k)+'" style="width:160px" placeholder="Explain the difference" value="'+esc(ct.note||'')+'">'}
+   h+='<tr class="row" data-k="'+esc(k)+'"><td><b>'+esc(a.ac||'(no account)')+'</b></td><td class="num">'+moneyH(rn(a.rec))+'</td><td class="num">'+moneyH(rn(a.out))+'</td><td class="num">'+moneyH(rn(a.spent))+'</td><td class="num"><b>'+balH(b)+'</b></td><td>'+(cls.join('')||'<span class="mut">\u2014</span>')+'</td><td>'+pos+'</td><td class="num"><input class="fld" data-cnt="'+esc(k)+'" inputmode="decimal" style="width:96px;text-align:right" value="'+(ct&&ct.amt!=null?esc(ct.amt):'')+'" placeholder="count"></td><td>'+diff+'</td></tr>'})});
+ h+='<tr class="tot"><td>TOTAL</td><td class="num">'+m2(TR)+'</td><td class="num">'+m2(TO)+'</td><td class="num">'+m2(TS)+'</td><td class="num">'+balH(TB)+'</td><td></td><td></td><td class="num">'+(anyC?m2(TC):'')+'</td><td>'+(anyC?(Math.abs(TC-TB)<=tol?'<span class="chip gd">Balanced</span>':'<span class="chip fb">'+(TC<TB?'Short ':'Over ')+m2(Math.abs(TC-TB))+'</span>'):'')+'</td></tr></tbody></table></div>';
+ var cl2=S.tx.filter(function(t){return!t.vd&&t.ty==='Expense'&&t.cs});
+ h+='<div class="panel lst-wrap"><h4>Claims</h4><div class="sub">Spending paid from a person\u2019s own pocket. Move each claim to approved, then paid once reimbursed.</div>'+(cl2.length?'<table class="grid auto"><thead><tr><th>Date</th><th style="text-align:left">Person</th><th style="text-align:left">Description</th><th>Amount (RM)</th><th>Status</th></tr></thead><tbody>'+cl2.map(function(t){return'<tr><td>'+fd(t.d)+'</td><td>'+esc(t.ac)+'</td><td>'+esc(t.de)+'</td><td class="num">'+m2(num(t.amt))+'</td><td><select class="fld" data-claim="'+t.u+'">'+CLS.map(function(c){return'<option'+(t.cs===c?' selected':'')+'>'+c+'</option>'}).join('')+'</select></td></tr>'}).join('')+'</tbody></table>':'<div class="empty">No claims. In an expense, open \u270E and choose "Claim" if it was paid from someone\u2019s own pocket.</div>')+'</div>';
+ $('acw').innerHTML=h}
+$('acw').addEventListener('click',function(e){if(e.target.closest('input,select,button'))return;var tr=e.target.closest('tr[data-k]');if(!tr)return;F.q='';F.ty='';F.ac=tr.getAttribute('data-k');$('fq').value='';$('ft').value='';show('tx')});
+$('acw').addEventListener('change',function(e){var t=e.target,k=t.getAttribute('data-cnt'),n=t.getAttribute('data-note'),cu=t.getAttribute('data-claim');
+ if(k!=null){if(locked()){toast('The books are locked.');return}withWho(function(){var v=t.value.trim();if(v==='')delete S.counts[k];else{S.counts[k]=Object.assign(S.counts[k]||{},{amt:String(num(v)),at:Date.now(),by:who()});lg('count','Cash count '+k.replace('|',' / ')+': RM '+m2(num(v)),k)}mark();paint()})}
+ else if(n!=null){if(S.counts[n]){S.counts[n].note=t.value;S.counts[n].at=Date.now();mark()}}
+ else if(cu){if(locked()){toast('The books are locked.');return}withWho(function(){var tx=S.tx[txFind(cu)];if(!tx)return;var o=tx.cs;tx.cs=t.value;tx.eb=who();tx.et=Date.now();lg('claim','Claim "'+tx.de+'" '+o+' \u2192 '+tx.cs,tx.u);mark();paint()})}});
+
+/* ================= SUMMARY & CLOSE ================= */
+function checks(L,B){var c=L.cnt,tol=S.tol||0,T=B.T,r=[];
+ function add(k,label,n,detail,tab){r.push({k:k,label:label,n:n,detail:detail,tab:tab})}
+ add('date','Entries without a date',c.noDate,'Balances follow date order, so every entry needs a real date.','tx');
+ add('inc','Entries with no amount',c.inc,'Type the amount, or void the empty row.','tx');
+ add('pm','Expenses without a payment method',c.noPm,'Open the entry (\u270E) and choose Cash, Bank transfer, Card or E-wallet.','tx');
+ add('rc','Expenses without a receipt',c.noRc,'Add the receipt number or a photo link.','tx');
+ add('ap','Expenses without an approver',c.noAp,'Record who approved the spending.','tx');
+ add('cat','Expenses not linked to the budget',c.noCat,'Pick the budget item, or mark it as outside the budget.','tx');
+ add('ob','Outside-budget spending without a reason',c.obNoWhy,'Outside-budget spending needs a note and an approver.','tx');
+ add('dup','Possible duplicate entries',c.dup,'Same date, amount and name appear more than once.','tx');
+ add('neg','Accounts that went below zero',c.neg,'More was paid out than had come in by that date.','tx');
+ add('leg','Old transfers with only one side',c.leg,'From an older file: open the entry and re-enter it as one transfer.','tx');
+ add('why','Overspends without a reason',T.unexpl,'Each overspent item or category needs an explanation.','bt');
+ add('com','Orders not yet paid',S.com.length,'RM '+m2(T.com)+' still to pay.','bt');
+ add('cl','Claims not yet paid',c.claims,'Move pending claims to paid once reimbursed.','ac');
+ var uncounted=0,bad=0;Object.keys(L.acc).forEach(function(k){var b=L.bal[k]||0,ct=S.counts[k];if(Math.abs(b)>tol&&(!ct||ct.amt==null||ct.amt===''))uncounted++;else if(ct&&ct.amt!==''&&Math.abs(num(ct.amt)-b)>tol)bad++});
+ add('cnt','Cash not counted / not matching',uncounted+bad,uncounted?uncounted+' account(s) holding cash have not been counted.':'Counted cash differs from the books.','ac');
+ add('rec','Books do not add up',Math.abs(L.recon)>tol?1:0,'Received \u2212 spent \u2212 returned should equal cash held (difference RM '+m2(L.recon)+').','sm');
+ return r}
+function renderSm(L,B){B=B||calcBudget(L);var T=B.T,tol=S.tol||0,ck=checks(L,B),h='';
+ // transactions at a glance
+ var gl={},pmS={};S.tx.forEach(function(t){var g=gl[t.ty]=gl[t.ty]||{n:0,a:0,v:0};if(t.vd){g.v++;return}g.n++;g.a+=num(t.amt);if(t.ty==='Expense'){var p=t.pm||'(not set)';pmS[p]=(pmS[p]||0)+num(t.amt)}});
+ var gr='';TYPES.forEach(function(ty){var g=gl[ty]||{n:0,a:0,v:0};gr+='<tr><td><span class="chip '+(ty==='Income'?'in':ty==='Expense'?'ex':ty==='Return'?'rt':'tr')+'">'+ty+'</span></td><td class="num">'+g.n+'</td><td class="num">'+(g.a?m2(g.a):'\u2013')+'</td><td class="num">'+(g.v||'\u2013')+'</td></tr>'});
+ var pr=Object.keys(pmS).map(function(k){return'<tr><td>'+esc(k)+'</td><td class="num">'+m2(pmS[k])+'</td></tr>'}).join('')||'<tr><td colspan="2" class="empty">No expenses yet.</td></tr>';
+ var glH='<div class="grid2"><div class="panel lst-wrap"><h4>Transactions summary</h4><table class="grid auto"><thead><tr><th style="text-align:left">Type</th><th>Entries</th><th>Total (RM)</th><th>Voided</th></tr></thead><tbody>'+gr+'</tbody></table></div><div class="panel lst-wrap"><h4>Spending by payment method</h4><table class="grid auto"><thead><tr><th style="text-align:left">Method</th><th>Spent (RM)</th></tr></thead><tbody>'+pr+'</tbody></table></div></div>';
+ // budget vs actual
+ var rows='',tp=0,tb=0,ta=0,tc=0;
+ S.cats.forEach(function(c){var r=B.C[c.u];if(!r||!r.has&&!c.name)return;var bl=0;if(baseOn())S.base.snap.forEach(function(s){if(s.cu===c.u)bl+=s.amt});
+  var anyItem=r.items.some(function(q){return q.over}),why=(c.why||'')+(r.items.filter(function(q,i){return q.over&&c.items[i].why}).map(function(q,i){return''}).join(''));
+  var reasons=[];if(c.why)reasons.push(c.why);c.items.forEach(function(it,i){if(r.items[i].over&&it.why)reasons.push((it.item||'item')+': '+it.why)});
+  var st=c.cont?'<span class="chip tr">Reserve</span>':(r.over?'<span class="chip fb">Over budget</span>':(r.has?'<span class="chip gd">In budget</span>':''));
+  var v=rn(r.act-r.plan);tp+=r.plan;tb+=bl;ta+=r.act;tc+=r.com;
+  rows+='<tr><td><b>'+esc(c.name||'(unnamed)')+'</b></td>'+(baseOn()?'<td class="num">'+(bl?m2(bl):'\u2013')+'</td>':'')+'<td class="num">'+m2(r.plan)+'</td><td class="num">'+m2(r.act)+'</td><td class="num">'+(r.com?m2(r.com):'\u2013')+'</td><td class="num">'+(v>0?'<span class="bad">+'+m2(v)+'</span>':v<0?'<span class="ok">\u2212'+m2(-v)+'</span>':'\u2013')+'</td><td class="num">'+(r.pct!=null&&r.has?(r.pct>0?'<span class="'+(r.pct>S.thr?'bad':'warn')+'">+':'<span class="ok">')+r.pct.toFixed(1)+'%</span>':'\u2013')+'</td><td>'+st+'</td><td>'+(r.over&&!c.cont?(reasons.length?esc(reasons.join(' \u00B7 ')):'<span class="warn">reason needed</span>'):'')+'</td></tr>'});
+ Object.keys(B.out).forEach(function(k){ta+=B.out[k];rows+='<tr><td><b>'+esc(k)+'</b></td>'+(baseOn()?'<td class="num">\u2013</td>':'')+'<td class="num">\u2013</td><td class="num">'+m2(B.out[k])+'</td><td class="num">\u2013</td><td class="num"><span class="bad">+'+m2(B.out[k])+'</span></td><td class="num">\u2013</td><td><span class="chip fl">Outside budget</span></td><td></td></tr>'});
+ var tv=rn(ta-tp);
+ h+='<div class="panel lst-wrap" style="margin-bottom:14px"><h4>Budget against what was really spent</h4><div class="sub">Spent comes straight from the ledger. Overspends over '+S.thr+'% are flagged in red.</div><table class="grid auto"><thead><tr><th>Category</th>'+(baseOn()?'<th class="num">Approved</th>':'')+'<th class="num">Plan now</th><th class="num">Spent</th><th class="num">Ordered</th><th class="num">Variance</th><th class="num">%</th><th>Status</th><th>Reason</th></tr></thead><tbody>'+(rows||'<tr><td colspan="9" class="empty">Nothing to show yet.</td></tr>')+'<tr class="tot"><td>TOTAL</td>'+(baseOn()?'<td class="num">'+m2(tb)+'</td>':'')+'<td class="num">'+m2(tp)+'</td><td class="num">'+m2(ta)+'</td><td class="num">'+m2(tc)+'</td><td class="num">'+(tv>0?'+':tv<0?'\u2212':'')+m2(Math.abs(tv))+'</td><td class="num">'+(tp?((tv/tp*100).toFixed(1)+'%'):'')+'</td><td colspan="2"></td></tr></tbody></table>'
+ +(T.reserve?'<div class="chk"><div class="ic">i</div><div class="tx">Overspending on normal categories is RM '+m2(T.over)+'. Contingency reserve: RM '+m2(T.reserve)+', used RM '+m2(T.reserveUsed)+(T.over>0?(T.over<=T.reserve-T.reserveUsed+tol?' \u2013 <b class="ok">the reserve covers the overspend</b>':' \u2013 <b class="bad">the reserve does not cover the overspend</b>'):'')+'.</div></div>':'')+'</div>';
+ h+=glH;
+ // cash position
+ var cntTot=0,cntAny=false;Object.keys(S.counts).forEach(function(k){var c=S.counts[k];if(c&&c.amt!==''&&c.amt!=null){cntAny=true;cntTot+=num(c.amt)}});
+ h+='<div class="grid2"><div class="panel lst-wrap"><h4>Cash position</h4><table class="grid auto"><tbody><tr><td>Cash received (Income)</td><td class="num"><b>'+moneyH(L.inc)+'</b></td></tr><tr><td>Spent (Expenses)</td><td class="num"><b>'+moneyH(L.spent)+'</b></td></tr>'+(L.tp?'<tr><td>&nbsp;&nbsp;of which paid directly by the UIA operator (no cash)</td><td class="num">'+moneyH(L.tp)+'</td></tr>':'')+'<tr><td>Returned out</td><td class="num"><b>'+moneyH(L.ret)+'</b></td></tr><tr class="sub"><td>Cash held in all accounts (books)</td><td class="num">'+balH(L.onHand)+'</td></tr>'+(cntAny?'<tr><td>Cash counted</td><td class="num">'+moneyH(rn(cntTot))+'</td></tr><tr><td>Difference</td><td class="num">'+(Math.abs(cntTot-L.onHand)<=tol?'<span class="ok">balanced</span>':'<span class="bad">'+(cntTot<L.onHand?'short ':'over ')+m2(Math.abs(cntTot-L.onHand))+'</span>')+'</td></tr>':'')+'</tbody></table></div>';
+ // settings + close
+ h+='<div class="panel"><h4>Close the event</h4><div class="sub">Rounding tolerance is the amount two totals may differ and still count as equal (for example RM 0.03).</div><div class="setg"><label>Rounding tolerance (RM) <input class="fld" id="stol" inputmode="decimal" value="'+esc(S.tol)+'"></label><label>Flag overspend above (%) <input class="fld" id="sthr" inputmode="decimal" value="'+esc(S.thr)+'"></label></div><div class="setg" style="padding-top:0">'+(locked()?'<span class="chip fl">&#128274; Locked by '+esc(S.lock.by)+' on '+fdt(S.lock.at)+'</span><button class="k" id="unlock" type="button">Unlock\u2026</button>':'<button class="b" id="lockb2" type="button">&#128274; Lock the books</button><span class="hint" style="margin:0">Nothing can be added, edited or voided while locked.</span>')+'</div></div></div>';
+ // checks
+ var open=ck.filter(function(x){return x.n>0}).length;
+ h+='<div class="panel" style="margin-bottom:14px"><h4>Checks before closing</h4><div class="sub">'+(open?open+' of '+ck.length+' checks need attention.':'Everything checks out.')+'</div>'+ck.map(function(x){return'<div class="chk'+(x.n?' bad':'')+'"><div class="ic">'+(x.n?'!':'\u2713')+'</div><div class="tx">'+esc(x.label)+(x.n?' <b>('+x.n+')</b>':'')+(x.n?'<small>'+esc(x.detail)+'</small>':'')+'</div>'+(x.n?'<button class="k sm" data-go="'+x.tab+'" data-ck="'+x.k+'" type="button">Review</button>':'')+'</div>'}).join('')+'</div>';
+ $('smw').innerHTML=h;return ck}
+$('smw').addEventListener('change',function(e){var t=e.target;if(t.id==='stol'){S.tol=Math.max(0,num(t.value));lg('setting','Rounding tolerance set to RM '+S.tol.toFixed(2),'');mark();paint()}else if(t.id==='sthr'){S.thr=Math.max(0,num(t.value));lg('setting','Overspend flag set to '+S.thr+'%','');mark();paint()}});
+$('smw').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;
+ if(b.getAttribute('data-go')){var k=b.getAttribute('data-ck');if(k==='inc'||k==='pm'||k==='date'||k==='rc'||k==='ap'||k==='cat'||k==='ob'||k==='dup'||k==='neg'||k==='leg'){F.q='';F.ty='';F.ac='';$('fq').value='';$('ft').value='';$('fa').value=''}show(b.getAttribute('data-go'));return}
+ if(b.id==='lockb2')lockBooks();else if(b.id==='unlock')unlockBooks()});
+function lockBooks(){withWho(function(){var L=calcLedger(),B=calcBudget(L),open=checks(L,B).filter(function(x){return x.n>0}).length;
+ var m=modal('<h3>Lock the books</h3><p class="dlg-text">'+(open?open+' check(s) still need attention. You can lock anyway, and unlock later with a reason.':'All checks passed.')+' While locked, entries cannot be added, edited or voided.</p><input class="dlg-input" id="ln" placeholder="Note (optional)"><div class="mb"><button class="k" id="mc">Cancel</button><button class="b" id="mo">Lock the books</button></div>');
+ m.querySelector('#mc').onclick=function(){m.remove()};m.querySelector('#mo').onclick=function(){S.lock={on:1,at:Date.now(),by:who(),note:m.querySelector('#ln').value.trim()};lg('lock','Books locked'+(S.lock.note?' \u2013 '+S.lock.note:'')+(open?' ('+open+' open checks)':''),'');m.remove();mark();paint()}})}
+function unlockBooks(){withWho(function(){var m=modal('<h3>Unlock the books</h3><p class="dlg-text">Say why. This is recorded in the Activity log.</p><input class="dlg-input" id="ln" placeholder="Reason (required)"><div class="mb"><button class="k" id="mc">Cancel</button><button class="r" id="mo">Unlock</button></div>');
+ m.querySelector('#mc').onclick=function(){m.remove()};m.querySelector('#mo').onclick=function(){var r=m.querySelector('#ln').value.trim();if(!r){toast('Please give a reason.');return}S.lock={on:0,at:Date.now(),by:who(),note:r};lg('unlock','Books unlocked \u2013 '+r,'');m.remove();mark();paint()}})}
+
+/* ================= ACTIVITY ================= */
+function renderLg(){var rows=S.log.slice().reverse();
+ $('lgw').innerHTML='<div class="panel lst-wrap"><h4>Activity</h4><div class="sub">Everything added, changed, voided or approved, with who and when. Nothing here can be edited.</div>'+(rows.length?'<table class="grid auto"><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Detail</th></tr></thead><tbody>'+rows.slice(0,400).map(function(r){return'<tr><td style="white-space:nowrap">'+fdt(r.t)+'</td><td>'+esc(r.by)+'</td><td><span class="chip nt">'+esc(r.a)+'</span></td><td>'+esc(r.x)+'</td></tr>'}).join('')+'</tbody></table>':'<div class="empty">Nothing recorded yet.</div>')+'</div>'}
+
+/* ================= paint everything ================= */
+function paint(light){var L=calcLedger(),B=null;
+ if(light)paintTxCalc(L);else renderTx();B=TAB==='bt'?paintBt():calcBudget(L);
+ var T=B.T,A=budgetTotal();
+ function K(id,t){$(id).innerHTML=t}
+ K('kIn','<small>RM</small>'+(L.inc?m2(L.inc):'0.00'));K('kInS',L.inc?'Income entries':'No income recorded yet');
+ K('kSp','<small>RM</small>'+(L.spent?m2(L.spent):'0.00'));K('kSpS',(A>0?Math.round(L.spent/A*100)+'% of the approved plan':'Expense entries')+(L.tp?' \u2013 incl. RM '+m2(L.tp)+' by UIA':''));
+ K('kOn','<small>RM</small>'+(L.onHand<0?'('+m2(-L.onHand)+')':m2(L.onHand)));var o=$('kOnS');o.className='s '+(L.onHand<-0.005?'bad':'');o.textContent=L.onHand<-0.005?'More paid out than received':'Held in all accounts';
+ K('kBl','<small>RM</small>'+(A?(A-L.spent<0?'('+m2(L.spent-A)+')':m2(A-L.spent)):'\u2013'));var bl=$('kBlS');bl.className='s '+(A?(A-L.spent>=-(S.tol||0)?'good':'bad'):'');bl.textContent=A?(A-L.spent>=-(S.tol||0)?'of RM '+m2(A)+' planned':'Over the plan'):'Fill in the Budget tab';
+ var ck=checks(L,B),open=ck.filter(function(x){return x.n>0}).length;
+ K('kCk',open?'<span style="color:var(--warn)">'+open+'</span>':'\u2713');var cs=$('kCkS');cs.className='s '+(open?'':'good');cs.textContent=open?'of '+ck.length+' checks \u2013 tap to review':'All checks passed';
+ var bd=$('bdSm');bd.style.display=open?'':'none';bd.textContent=open;
+ $('lockb').style.display=locked()?'inline-block':'none';
+ if(TAB==='ac')renderAc(L);if(TAB==='sm')renderSm(L,B);if(TAB==='lg')renderLg()}
+$('kCkC').onclick=function(){show('sm')};
+var SH=[['bt','1','Budget'],['tx','2','Transactions'],['ac','3','Accounts'],['sm','4','Summary'],['lg','5','Activity']];
+$('sideNav').innerHTML=SH.map(function(n){return'<button type="button" data-s="'+n[0]+'"><span class="ic">'+n[1]+'</span><span class="tx">'+esc(n[2])+'</span></button>'}).join('');
+function show(s){TAB=s;[].forEach.call(document.querySelectorAll('.sheet'),function(x){x.classList.toggle('on',x.id==='sh-'+s)});
+ [].forEach.call(document.querySelectorAll('.stab'),function(x){x.classList.toggle('on',x.getAttribute('data-s')===s)});
+ [].forEach.call($('sideNav').querySelectorAll('button'),function(x){x.classList.toggle('on',x.getAttribute('data-s')===s)});
+ document.body.classList.remove('side-open');if(s==='bt')renderBt();paint()}
+$('sideNav').onclick=function(e){var b=e.target.closest('button');if(b)show(b.getAttribute('data-s'))};
+(function(){var b=$('sumtog');function ap(h){document.body.classList.toggle('hide-sum',h);b.innerHTML=h?'&#9660; Show summary':'&#9650; Hide summary'}
+ var h=false;try{h=localStorage.getItem('cf_hidesum')==='1'}catch(e){}ap(h);
+ b.onclick=function(){h=!h;ap(h);try{localStorage.setItem('cf_hidesum',h?'1':'0')}catch(e){}}})();
+(function(){var z=1;try{z=parseFloat(localStorage.getItem('cf_tz'))||1}catch(e){}
+ function ap(){z=Math.max(.5,Math.min(2,Math.round(z*10)/10));document.documentElement.style.setProperty('--tz',z);$('tzv').textContent=Math.round(z*100)+'%';try{localStorage.setItem('cf_tz',z)}catch(e){}}
+ $('tzm').onclick=function(){z-=.1;ap()};$('tzp').onclick=function(){z+=.1;ap()};$('tzv').onclick=function(){z=1;ap()};ap()})();
+$('tabsbar').onclick=function(e){var b=e.target.closest('.stab');if(b)show(b.getAttribute('data-s'))};
+$('pname').addEventListener('input',function(){S.name=this.value;mark()});
+$('who').onclick=function(){dlg('Your name (stamped on every entry you make)',WHO,true).then(function(n){if(n)setWho(n)})};
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){var m=document.getElementById('dmod');if(m)m.remove()}});
+
+/* ================= excel paste + csv ================= */
+function toType(v,def){v=low(v);if(!v)return def;if(v[0]==='i')return'Income';if(v[0]==='t')return'Transfer';if(v[0]==='e')return'Expense';if(v[0]==='r')return'Return';return def}
+function parseTSV(s){return s.replace(/\r/g,'').replace(/\n+$/,'').split('\n').map(function(r){return r.split('\t')})}
+var FIELDS=['d','ty','id','co','ac','in','out','de','tf','ca'];
+var HDR={d:/^(date|date transfer|tarikh)/,ty:/^type/,id:/(transfer id|^id$|^no\.?$|ref)/,co:/^(comm?ittee|committe)/,ac:/^(acc|account)/,in:/(amount in|^in\b|^debit)/,out:/(amount out|^out\b|^credit)/,de:/^(desc|particular|detail)/,tf:/(to\/from|\(to\/from\)|\(to\)|^to\b|^from\b|payee|seller)/,ca:/^(cat)/};
+function importTable(txt){var m=parseTSV(txt).filter(function(r){return r.some(function(c){return c.trim()})});if(!m.length)throw new Error('Nothing to import.');
+ var map=null,hdr=m[0].map(low),hit=0,tmp={};
+ hdr.forEach(function(h,j){for(var f in HDR){if(!tmp[f]&&HDR[f].test(h)){tmp[f]=j;hit++;break}}});
+ if(hit>=3){map=tmp;m=m.slice(1)}else{map={};FIELDS.forEach(function(f,j){map[f]=j})}
+ var out=[],pc='',pa='';
+ m.forEach(function(row){var t={};function g(f){return map[f]==null?'':String(row[map[f]]==null?'':row[map[f]]).trim()}
+  FIELDS.forEach(function(f){if(f!=='ty')t[f]=g(f)});
+  if(!t.co)t.co=pc;else pc=t.co;if(!t.ac)t.ac=pa;else pa=t.ac;
+  var o=num(t.out);if(o<0)t.out=String(-o);var i2=num(t.in);if(i2<0&&!t.out){t.out=String(-i2);t.in=''}
+  if(/^[\s-]*$/.test(t.in+t.out)&&!t.de&&!t.tf&&!t.id)return;
+  var ty=map.ty!=null?toType(g('ty'),''):'';if(!ty)ty=t.ca?'Expense':(/3rd/i.test(t.id)?'Expense':'Transfer');
+  t.ty=ty;if(/3rd/i.test(t.id))t.id='';t.cb=who();out.push(t)});
+ if(!out.length)throw new Error('No transactions found in the pasted text.');
+ var nt=migTx(out,S.cats);S.tx=S.tx.concat(nt);lg('import','Pasted '+nt.length+' entries from Excel','');return nt.length}
+$('txPaste').onclick=function(){if(guardLock())return;withWho(function(){var m=modal('<h3>Paste from Excel</h3><p class="dlg-text">Copy the cells in Excel (with the header row if you have one) and paste them here. Columns are matched by their heading. Transfers whose two sides match are merged into one entry.</p><textarea id="pt" class="fld" rows="9" style="width:100%;height:auto;padding:8px 11px;font:12px monospace" placeholder="Paste here"></textarea><div class="mb"><button class="k" id="pc">Cancel</button><button class="b" id="po">Add to the ledger</button></div>');
+ m.querySelector('#pt').focus();m.querySelector('#pc').onclick=function(){m.remove()};
+ m.querySelector('#po').onclick=function(){try{var n=importTable(m.querySelector('#pt').value);m.remove();mark();paint();toast('Added '+n+' entr'+(n===1?'y':'ies')+'. Add dates and receipts where they are missing.')}catch(er){toast(er.message)}}})};
+function csvCell(v){v=String(v==null?'':v);return/[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+$('txCsv').onclick=function(){var L=calcLedger(),o=[['Date','Type','Account','To account','Amount','Balance','Description','Name','Budget item','Payment','Receipt','Approved by','Claim','Voided','Checks','UIA document'].join(',')];
+ L.ord.forEach(function(i){var t=S.tx[i],r=L.rows[i];o.push([fd(t.d),tyLbl(t),tpOn(t)?'UIA operator':alabel(t.co,t.ac),t.ty==='Transfer'&&!t.leg?alabel(t.tco,t.tac):'',rn(num(t.amt)),r.bal==null?'':rn(r.bal),t.de,t.tf,catLabel(t),t.pm,t.rc,t.ap,t.cs,t.vd?'VOID: '+t.vr:'',(r.fl||[]).map(function(f){return f.t}).join('; '),tpOn(t)?tkName(t.tk):''].map(csvCell).join(','))});
+ var u=URL.createObjectURL(new Blob(['\ufeff'+o.join('\r\n')],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');a.href=u;a.download=xfn((S.name||'cash flow')+' transactions')+'.csv';document.body.appendChild(a);a.click();setTimeout(function(){a.remove();URL.revokeObjectURL(u)},1500);toast('Downloaded CSV')};
+
+/* ================= merging two people's edits ================= */
+function newer(a,b){return(b.et||b.mt||b.t||b.ct||0)>(a.et||a.mt||a.t||a.ct||0)}
+function mergeList(la,lb,del){var out=la.filter(function(x){return!del[x.u]}),ix={};out.forEach(function(x,i){ix[x.u]=i});
+ lb.forEach(function(x){if(del[x.u])return;if(ix[x.u]==null){out.push(x);ix[x.u]=out.length-1}else if(newer(out[ix[x.u]],x))out[ix[x.u]]=x});return out}
+function mergeData(a,b){var m=JSON.parse(JSON.stringify(a)),del={};(a.del||[]).concat(b.del||[]).forEach(function(u){del[u]=1});m.del=Object.keys(del);
+ m.tx=mergeList(m.tx,b.tx,del);m.inc=mergeList(m.inc,b.inc,del);m.com=mergeList(m.com,b.com,del);
+ var ci={};m.cats=m.cats.filter(function(c){return!del[c.u]});m.cats.forEach(function(c,i){ci[c.u]=i});
+ b.cats.forEach(function(c){if(del[c.u])return;if(ci[c.u]==null){m.cats.push(c);return}var l=m.cats[ci[c.u]],keep=newer(l,c)?c:l,oth=keep===c?l:c;
+  var items=mergeList(l.items,c.items,del);m.cats[ci[c.u]]=Object.assign({},keep,{items:items})});
+ var ri={};m.revs.forEach(function(r){ri[r.u]=1});b.revs.forEach(function(r){if(!ri[r.u])m.revs.push(r)});m.revs.sort(function(x,y){return x.t-y.t});
+ var li={};m.log.forEach(function(r){li[r.u||r.t+r.x]=1});b.log.forEach(function(r){if(!li[r.u||r.t+r.x])m.log.push(r)});m.log.sort(function(x,y){return x.t-y.t});
+ Object.keys(b.counts).forEach(function(k){if(!m.counts[k]||(b.counts[k].at||0)>(m.counts[k].at||0))m.counts[k]=b.counts[k]});
+ if(b.base&&(!m.base||(b.base.at||0)>(m.base.at||0)))m.base=b.base;
+ if(b.lock&&(!m.lock||(b.lock.at||0)>(m.lock.at||0)))m.lock=b.lock;
+ return m}
+function setAll(){$('pname').value=S.name;F={q:'',ac:'',ty:'',vd:false};$('fq').value='';$('ft').value='';$('fv').checked=false;if(TAB==='bt')renderBt();paint()}
+
+/* ---- example data (BTR programme from the workbook) ---- */
+var EXAMPLE={name:'BTR Programme',
+cats:[
+{name:'Printing',items:[
+{item:'Maggie',price:'4.8',qty:'150',ai:'Maggie',ab:'150',ap:'4.6',src:'p'},
+{item:'Biscuit',price:'2.6',qty:'150',ai:'Biscuit',ab:'157',ap:'2.6',src:'p'},
+{item:'Box drink',price:'1.2',qty:'150',ai:'Box drink',ab:'156',at:'109.7928',src:'t'},
+{item:'Bread',price:'5.5',qty:'150',ai:'Bread',ab:'150',ap:'5.5',src:'p'},
+{item:'Sachet',price:'2.6',qty:'50',ai:'Sachet',ab:'50',ap:'2.6',src:'p'}]},
+{name:'General expense',items:[
+{item:'Paper bag',price:'0.6',qty:'200',ai:'Plastic',ab:'200',ap:'0.595',src:'p'},
+{item:'Banner',price:'30',qty:'1'},
+{item:'Bunting',price:'20',qty:'1',ai:'Bunting',ab:'2',ap:'17.27',src:'p'}]},
+{name:'Food',items:[{item:'',price:'5',qty:'12',ai:'Food',ab:'12',ap:'5',src:'p'}]},
+{name:'Misc',items:[{item:'',price:'100',qty:'1'}]}],
+tx:[
+{ty:'Income',id:'1',co:'PRINCIPAL',ac:'Dr AFFIF',in:'520',de:'ADV UIA',tf:'UIA Operator'},
+{ty:'Transfer',id:'2',co:'PRINCIPAL',ac:'Dr AFFIF',out:'520',de:'ADV UIA',tf:'FAUZAN'},
+{ty:'Transfer',id:'2',co:'MB',ac:'FAUZAN',in:'520',de:'Advancement',tf:'DR.AFFIF'},
+{ty:'Transfer',id:'1002',co:'MB',ac:'FAUZAN',out:'150',de:'(deco)',tf:'KOI'},
+{ty:'Transfer',id:'1002',co:'MB',ac:'FAUZAN',out:'20',de:'(misc)',tf:'KOI'},
+{ty:'Transfer',id:'1003',co:'MB',ac:'FAUZAN',out:'350',de:'',tf:'MAEL'},
+{ty:'Transfer',id:'1003',co:'MB',ac:'MAEL',in:'350',de:'',tf:'FAUZAN'},
+{ty:'Transfer',id:'1011',co:'MB',ac:'MAEL',out:'120',de:'(printing)(pa)',tf:'KOI'},
+{ty:'Transfer',id:'1012',co:'MB',ac:'MAEL',out:'50',de:'(L.Draw)',tf:'KOI'},
+{ty:'Transfer',id:'1013',co:'MB',ac:'MAEL',out:'27',de:'CommTag(Misc)',tf:'IMAN IQMAL'},
+{ty:'Transfer',id:'1014',co:'MB',ac:'MAEL',out:'148.25',de:'Return ADV',tf:'Dr.Affif'},
+{ty:'Transfer',id:'1014',co:'PRINCIPAL',ac:'Dr AFFIF',in:'148.25',de:'Return ADV',tf:'MAEL'},
+{ty:'Return',id:'4',co:'PRINCIPAL',ac:'Dr AFFIF',out:'148.28',de:'Return to UIA',tf:'UIA Operator'},
+{ty:'Expense',co:'MB',ac:'MAEL',out:'40',de:'rice',tf:'siddiq cafe',ca:'Misc'},
+{ty:'Expense',co:'MB',ac:'MAEL',out:'30',de:'paperbag',tf:'keri',ca:'Misc'},
+{ty:'Transfer',id:'1101',co:'MB',ac:'MAEL',in:'65.28',de:'return',tf:'KOI'},
+{ty:'Transfer',id:'1011',co:'SPECTA',ac:'KOI',in:'120',de:'(printing)(pa)',tf:'mael'},
+{ty:'Transfer',id:'1012',co:'SPECTA',ac:'KOI',in:'50',de:'(L.Draw)',tf:'mael'},
+{ty:'Transfer',id:'1002',co:'SPECTA',ac:'KOI',in:'150',de:'(deco)',tf:'fauzan'},
+{ty:'Transfer',id:'1002',co:'SPECTA',ac:'KOI',in:'20',de:'(misc)',tf:'fauzan'},
+{ty:'Expense',co:'SPECTA',ac:'KOI',out:'27.72',de:'Banner',tf:'YL',ca:'Printing'},
+{ty:'Expense',co:'SPECTA',ac:'KOI',out:'26.4',de:'Bunting',tf:'YL',ca:'Printing'},
+{ty:'Expense',co:'SPECTA',ac:'KOI',out:'6',de:'pvc pipe',tf:'YL',ca:'Printing'},
+{ty:'Expense',co:'SPECTA',ac:'KOI',out:'112.6',de:'deco',tf:'',ca:'Decoration'},
+{ty:'Expense',co:'SPECTA',ac:'KOI',out:'26',de:'eco shop item x10',tf:'eco shop',ca:'Lucky Draw'},
+{ty:'Expense',co:'SPECTA',ac:'KOI',out:'23',de:'ball pen',tf:'eco shop',ca:'Lucky Draw'},
+{ty:'Expense',co:'SPECTA',ac:'KOI',out:'53',de:'fuel',tf:'bhp',ca:'Misc'},
+{ty:'Transfer',id:'1101',co:'SPECTA',ac:'KOI',out:'65.28',de:'return',tf:'MAEL'},
+{ty:'Transfer',id:'1103',co:'SPECTA',ac:'IMAN IQMAL',in:'27',de:'Claim',tf:'MAEL'},
+{ty:'Expense',co:'SPECTA',ac:'IMAN IQMAL',out:'27',de:'Committee tag',tf:'KAED Print',ca:'Misc'}
+].map(function(t,i){t.d='';return t})};
+function loadExample(){var go=function(){S=norm(JSON.parse(JSON.stringify(EXAMPLE)));cur={id:null,name:'',dirty:true,status:'draft',updated:0};setAll();show('bt');ui();mark();toast('Example data loaded (BTR programme). Press New entry to start a blank one.')};
+ if(S.tx.length||S.cats.length)ask('Replace what is on screen?','The example data will replace the current budget and transactions (anything saved stays saved).','Load example').then(function(ok){if(ok)go()});else go()}
+document.addEventListener('click',function(e){var b=e.target.closest('[data-a="sample"]');if(b){e.preventDefault();loadExample()}});
+/* ================= drafts (Apps Script, with local fallback for previews) ================= */
+function store(){try{var s=localStorage.getItem('cf_drafts');if(s)return JSON.parse(s)}catch(e){}return mem}
+function put(o){mem=o;try{localStorage.setItem('cf_drafts',JSON.stringify(o))}catch(e){}}
+function local(fn,a){var d=store();
+ if(fn==='listDrafts'){if(a[0]&&a[0]!==XK)return[];return Object.keys(d).map(function(k){return{id:k,name:d[k].name,updated:d[k].updated,status:d[k].status||'draft'}}).sort(function(x,y){return y.updated-x.updated})}
+ if(fn==='saveDraft'){var id=a[0]||('l'+Date.now()),o=d[id];d[id]={name:a[1],json:a[2],updated:Date.now(),status:a[4]||(o&&o.status)||'draft'};put(d);return{id:id,name:a[1],updated:d[id].updated,status:d[id].status}}
+ if(fn==='openDraft'){var x=d[a[0]];if(!x)throw new Error('Draft not found.');return{id:a[0],name:x.name,updated:x.updated,json:x.json,canEdit:true,status:x.status||'draft'}}
+ if(fn==='deleteDraft'){delete d[a[0]];put(d);return true}
+ throw new Error('This only works in the deployed Apps Script app.')}
+function call(fn,args){return new Promise(function(res,rej){
+ if(ON){var r=google.script.run.withSuccessHandler(res).withFailureHandler(function(e){rej(new Error((e&&e.message)||e))});r[fn].apply(r,args)}
+ else{try{res(local(fn,args))}catch(e){rej(e)}}})}
+function modal(h){var m=document.createElement('div');m.id='dmod';m.innerHTML='<div class="box">'+h+'</div>';document.body.appendChild(m);return m}
+function dlg(title,def,input){return new Promise(function(res){
+ var m=modal('<h3>'+esc(title)+'</h3>'+(input?'<input id="mi" class="dlg-input">':'')+'<div class="mb"><button class="k" id="mc">Cancel</button><button class="b" id="mo">OK</button></div>'),i=m.querySelector('#mi');
+ if(i){i.value=def||'';i.focus();i.onkeydown=function(e){if(e.key==='Enter')m.querySelector('#mo').click()}}
+ m.querySelector('#mc').onclick=function(){m.remove();res(null)};
+ m.querySelector('#mo').onclick=function(){var v=i?i.value.trim():true;m.remove();res(v||null)}})}
+function ui(){var d=$('dst'),st=cur.status==='completed'?'Completed':'Draft';if(!cur.id){d.className='new';d.textContent='NEW ENTRY'}else if(cur.dirty){d.className='dirty';d.textContent=cur.name+' \u2022 '+st+' \u2022 unsaved'}else{d.className='ok';d.textContent=cur.name+' \u2022 '+st+' \u2022 saved'}}
+var autoT=null;
+function sched(){clearTimeout(autoT);if(!cur.id||!$('auto').checked)return;autoT=setTimeout(function(){if(cur.dirty&&cur.id)doSave(false,cur.name,cur.status,true)},5000)}
+function mark(){if(!cur.dirty){cur.dirty=true;ui()}sched()}
+function hhmm(){var d=new Date();return('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)}
+function doSave(asNew,name,status,silent){
+ var merged=false;
+ function pre(){if(asNew||!cur.id||!cur.updated)return Promise.resolve(null);return call('openDraft',[cur.id,XK]).then(function(r){return r.updated>cur.updated+500?r:null}).catch(function(){return null})}
+ function send(b,tries){return call('saveDraft',[asNew?null:cur.id,name,JSON.stringify(S),XK,status||null,b]).then(function(r){
+   if(r&&r.conflict&&tries<3){S=mergeData(S,norm(JSON.parse(r.json)));merged=true;return send(r.updated,tries+1)}return r})}
+ pre().then(function(r){if(r){S=mergeData(S,norm(JSON.parse(r.json)));cur.updated=r.updated;merged=true}return send(asNew?0:cur.updated,0)}).then(function(r){
+  cur={id:r.id,name:r.name,dirty:false,status:r.status||'draft',updated:r.updated||Date.now()};ui();$('sv').textContent=(silent?'Autosaved ':'Saved ')+hhmm();
+  if(merged){setAll();toast('Saved. Someone else had also made changes \u2013 both sets were combined.')}
+  else if(!silent)toast(r.status==='completed'?'Saved as completed: '+r.name:'Saved as draft: '+r.name)}).catch(function(e){
+  if(e.message==='VIEW_ONLY'){$('auto').checked=false;toast('View-only access. Use Save as new copy.')}else toast(silent?'Autosave failed: '+e.message:e.message)})}
+
+function save(asNew){
+ if(asNew){dlg('Name the new copy',(cur.name?cur.name+' (copy)':S.name||''),true).then(function(n){if(n)doSave(true,n,'draft')});return}
+ var needName=!cur.id,m=modal('<h3>'+(needName?'Save this programme cash flow':'Save \u201c'+esc(cur.name)+'\u201d')+'</h3><p class="dlg-text" style="margin:0 0 10px;font-size:13.5px">Draft = still being worked on. Completed = finished; it is listed as completed on the Dashboard. You can change this any time.</p>'+(needName?'<input id="mi" class="dlg-input">':'')+'<div class="mb"><button class="k" id="mc">Cancel</button><button class="b" id="s1">Save as draft</button><button class="g" id="s2">Save as completed</button></div>'),i=m.querySelector('#mi');
+ if(i){i.value=S.name||'';i.focus();i.select()}
+ function go(st){var n=i?(i.value.trim()||S.name||'Untitled programme'):cur.name;m.remove();doSave(false,n,st)}
+ m.querySelector('#s1').onclick=function(){go('draft')};m.querySelector('#s2').onclick=function(){go('completed')};
+ m.querySelector('#mc').onclick=function(){m.remove()};if(i)i.onkeydown=function(e){if(e.key==='Enter')go('draft')}}
+document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();if(cur.id)doSave(false,cur.name,cur.status);else save(false)}});
+
+function load(id){call('openDraft',[id,XK]).then(function(r){S=norm(JSON.parse(r.json));cur={id:r.id,name:r.name,dirty:false,status:r.status||'draft',updated:r.updated||0};setAll();ui();$('sv').textContent='';toast('Opened: '+r.name+(r.canEdit?'':' (view only)'))}).catch(function(e){toast(e.message)})}
+/* pick up other people's changes while nobody has unsaved edits here */
+setInterval(function(){if(!cur.id||cur.dirty||document.hidden||document.getElementById('dmod'))return;
+ call('openDraft',[cur.id,XK]).then(function(r){if(r.updated>cur.updated+500){S=norm(JSON.parse(r.json));cur.updated=r.updated;setAll();ui();toast('Updated with changes saved by someone else.')}}).catch(function(){})},30000);
+
+$('bs').onclick=function(){save(false)};$('bn').onclick=function(){save(true)};
+$('bw').onclick=function(){dlg('Start a new entry? Unsaved changes will be lost.').then(function(ok){if(!ok)return;S=blank();cur={id:null,name:'',dirty:false,status:'draft'};setAll();ui();$('sv').textContent=''})};
+$('bo').onclick=function(){var m=modal('<h3>Saved cash flows</h3><div id="dl">Loading\u2026</div><div class="mb"><button class="k" id="mc">Close</button></div>');m.querySelector('#mc').onclick=function(){m.remove()};
+ call('listDrafts',[XK]).then(function(a){var h=a.length?'':'<p>No saved cash flows yet.</p>';
+  a.forEach(function(d,i){h+='<div class="row"><span>'+esc(d.name)+'<small>'+(d.status==='completed'?'Completed':'Draft')+' \u2022 '+new Date(d.updated).toLocaleString()+(d.shared?' \u2022 shared by '+esc(d.owner||''):'')+'</small></span><button class="b" data-o="'+i+'">Open</button>'+(d.shared?'':'<button class="r" data-d="'+i+'">Delete</button>')+'</div>'});
+  var dl=m.querySelector('#dl');dl.innerHTML=h;
+  dl.onclick=function(e){var t=e.target,o=t.getAttribute('data-o'),x=t.getAttribute('data-d');
+   if(o!=null){m.remove();var sh=shell();if(sh)sh.openDraft(XK,a[o].id);else load(a[o].id)}
+   if(x!=null)dlg('Delete this cash flow?').then(function(ok){if(ok)call('deleteDraft',[a[x].id]).then(function(){m.remove();$('bo').click()}).catch(function(er){toast(er.message)})})}
+ }).catch(function(e){m.querySelector('#dl').textContent=e.message})};
+$('bl').onclick=function(){if(!cur.id){toast('Save the draft first.');return}
+ if(!ON){toast('Links work in the deployed app.');return}
+ call('getPageUrl',['ProgrameCashFLow']).then(function(u){var l=u+(u.indexOf('?')>-1?'&':'?')+'draft='+cur.id;
+  (navigator.clipboard?navigator.clipboard.writeText(l):Promise.reject()).then(function(){toast('Link copied')},function(){dlg('Copy this link',l,true)})}).catch(function(e){toast(e.message)})};
+
+/* ---- export / import (file or pasted text) ---- */
+function xm(h){var m=document.createElement('div');m.id='dmod';m.innerHTML='<div class="box">'+h+'</div>';document.body.appendChild(m);m.addEventListener('mousedown',function(e){if(e.target===m)m.remove()});return m}
+function xyn(t){return new Promise(function(res){var m=xm('<h3 style="margin:0 0 10px;font-size:16px">'+t+'</h3><div style="'+XR1+'"><button class="k" id="xn">Cancel</button><button class="b" id="xy">OK</button></div>');m.querySelector('#xn').onclick=function(){m.remove();res(false)};m.querySelector('#xy').onclick=function(){m.remove();res(true)}})}
+function xpack(){return{app:XAPP,v:2,kind:XK,name:(cur.name||S.name||'Programme cash flow'),status:(cur.status==='completed'?'completed':'draft'),exported:new Date().toISOString(),data:S}}
+function xfn(s){return String(s).replace(/[^\w\- ]+/g,'').trim().replace(/\s+/g,'_').slice(0,60)||'cashflow'}
+function xdl(n,o){var u=URL.createObjectURL(new Blob([JSON.stringify(o)],{type:'application/json'})),a=document.createElement('a');a.href=u;a.download=n;document.body.appendChild(a);a.click();setTimeout(function(){a.remove();URL.revokeObjectURL(u)},1500)}
+function xok(d){return !!(d&&Array.isArray(d.tx)&&Array.isArray(d.cats))}
+function xnorm(o){if(!o||typeof o!=='object')throw new Error('That is not a valid export.');
+ if(Array.isArray(o.bundle)){var out=[];o.bundle.forEach(function(x){if(x&&x.kind===XK&&xok(x.data))out.push({name:x.name||'Imported '+XL,status:x.status==='completed'?'completed':'draft',data:x.data})});if(!out.length)throw new Error('No '+XL+'s found in this file.');return out}
+ if(o.kind&&o.kind!==XK)throw new Error('This file holds a '+o.kind+', not a '+XL+'. Import it on the matching page.');
+ var d=o.data||o;if(!xok(d))throw new Error('That is not a '+XL+' file.');
+ return[{name:o.name||'Imported '+XL,status:o.status==='completed'?'completed':'draft',data:d}]}
+function xsaveAll(list){var n=0,i=0;(function nx(){if(i>=list.length){toast('Imported '+n+' of '+list.length+' '+XL+'s as saved drafts. Open saved\u2026 to see them.');return}
+ var it=list[i++];call('saveDraft',[null,it.name,JSON.stringify(norm(it.data)),XK,it.status]).then(function(){n++}).catch(function(){}).then(nx)})()}
+function xrun(t,m){var list;try{list=xnorm(JSON.parse(t))}catch(e){toast(e instanceof SyntaxError?'That is not valid exported text.':e.message);return}
+ if(m)m.remove();
+ if(list.length>1){xyn('Import '+list.length+' '+XL+'s as new saved drafts?').then(function(ok){if(ok)xsaveAll(list)});return}
+ var it=list[0];var go=function(){S=norm(it.data);cur={id:null,name:'',dirty:true,status:it.status};setAll();ui();toast('Imported \u201c'+it.name+'\u201d. Press Save to keep it.')};
+ if(cur.dirty)xyn('Replace the cash flow on screen with the imported one? Unsaved changes will be lost.').then(function(ok){if(ok)go()});else go();}
+function xopen(){var m=xm('<h3 style="margin:0 0 10px;font-size:16px">Export / Import</h3><p style="margin:0 0 6px"><b>Export this '+XL+'</b></p>'+
+ '<div style="'+XR0+'"><button class="b" id="xd">Download file</button><button class="k" id="xc">Copy as text</button><button class="k" id="xa">Export all saved '+XL+'s</button></div>'+
+ '<p style="margin:14px 0 6px"><b>Import</b> <span style="opacity:.7;font-size:12px">(a file exported from any version of this app)</span></p>'+
+ '<div style="'+XR0+'"><button class="b" id="xf">Choose file\u2026</button></div>'+
+ '<textarea id="xt" rows="4" placeholder="\u2026or paste exported text here" style="width:100%;box-sizing:border-box;margin-top:8px;padding:10px;border:1px solid #2b3a5c;border-radius:10px;background:#0a1020;color:#e9ebee;font:12px monospace"></textarea>'+
+ '<div style="'+XR1+'"><button class="k" id="xx">Close</button><button class="b" id="xi">Import pasted text</button></div>');
+ var g=function(i){return m.querySelector('#'+i)};
+ g('xx').onclick=function(){m.remove()};
+ g('xd').onclick=function(){xdl(xfn(xpack().name)+'.pgdraft.json',xpack());toast('Downloaded. Upload it with Import in the other app.')};
+ g('xc').onclick=function(){var t=JSON.stringify(xpack()),ta=g('xt');(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){toast('Copied. Paste it into Import in the other app.')},function(){ta.value=t;ta.select();try{document.execCommand('copy');toast('Copied')}catch(e){toast('Select the text in the box and copy it.')}})};
+ g('xa').onclick=function(){toast('Collecting saved '+XL+'s\u2026');call('listDrafts',[XK]).then(function(a){var out=[],i=0;(function nx(){if(i>=a.length){if(!out.length){toast('No saved '+XL+'s yet.');return}xdl('cashflows-export-'+new Date().toISOString().slice(0,10)+'.pgdraft.json',{app:XAPP,v:2,bundle:out});toast('Exported '+out.length+' '+XL+'s');return}
+  var d=a[i++];call('openDraft',[d.id,XK]).then(function(r){out.push({kind:XK,name:r.name,status:d.status||r.status||'draft',data:JSON.parse(r.json)})}).catch(function(){}).then(nx)})()}).catch(function(e){toast(e.message)})};
+ g('xf').onclick=function(){var f=document.createElement('input');f.type='file';f.accept='.json,.pgdraft,application/json,text/plain';f.onchange=function(){var fl=f.files&&f.files[0];if(!fl)return;var r=new FileReader();r.onload=function(){xrun(String(r.result),m)};r.onerror=function(){toast('Could not read that file.')};r.readAsText(fl)};f.click()};
+ g('xi').onclick=function(){var t=g('xt').value.trim();if(!t){toast('Paste the exported text first.');return}xrun(t,m)}}
+$('bx').onclick=xopen;
+
+/* ---- links to the other pages of this web app ---- */
+if(ON)[['goDash','Dashboard'],['goProp','Proposal'],['goFin','Financial']].forEach(function(p){google.script.run.withSuccessHandler(function(u){var a=$(p[0]);if(a&&u){a.href=u;a.style.display=''}}).withFailureHandler(function(){}).getPageUrl(p[1])});
+
+/* ---- hooks used by the Index.html shell (tabs) ---- */
+window.__st=function(){return{id:cur.id,dirty:!!cur.dirty,name:cur.name||S.name,status:cur.status}};
+window.__setStatus=function(id,s){if(cur.id===id){cur.status=s;ui();}};
+window.__deleted=function(id){if(cur.id===id){cur={id:null,name:'',dirty:true,status:'draft'};ui();}};
+if(shell())$('bw').onclick=function(){shell().newTab(XK);};
+window.__prefill=function(o){S=norm(o||{});cur.dirty=true;setAll();ui()};
+window.addEventListener('beforeunload',function(e){if(cur.dirty&&!shell()){e.preventDefault();e.returnValue=''}});
+
+/* ---- start ---- */
+S=blank();paintWho();setAll();ui();show('bt');
+if(window.__DRAFT_ID__)load(window.__DRAFT_ID__);
+})();
+</script>
+</body></html>
